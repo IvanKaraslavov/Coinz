@@ -1,4 +1,19 @@
 <resources>
     <string name="app_name">Coinz</string>
     <string name="action_settings">Settings</string>
+    <string name="trasparentbackground">trasparentBackground</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="signupbutton">signupButton</string>
+    <string name="if_you_have_an_account">If you have an account,</string>
+    <string name="log_in_now">log in now</string>
+    <string name="coinz">COINz</string>
+    <string name="loginicon">loginicon</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="loginicons">loginicons</string>
+    <string name="signupicons">signupicons</string>
+    <string name="loginbutton">loginButton</string>
+    <string name="if_you_don_t_have_an_account">If you don\'t have an account,</string>
+    <string name="sign_up_now">sign up now</string>
 </resources>
