@@ -296,4 +296,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
+
+    @Override
+    public void onBackPressed() {
+    }
 }
