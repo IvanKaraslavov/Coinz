@@ -8,7 +8,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class DownloadCompleteRunner {
     private static String result;
@@ -17,6 +22,22 @@ public class DownloadCompleteRunner {
         DownloadCompleteRunner.result = result;
         JSONObject jsonObject = new JSONObject(getResult());
         getInformation(jsonObject);
+
+        if(!MainActivity.getFileDownloaded()) {
+            writeFile();
+        }
+    }
+
+    public static void writeFile() {
+        // Add the geojson text into a file in internal storage
+        try {
+            FileOutputStream file = getApplicationContext().openFileOutput("coinzmap.geojson", MODE_PRIVATE);
+            OutputStreamWriter outputWriter=new OutputStreamWriter(file);
+            outputWriter.write(result);
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void getInformation(JSONObject jsonObject) throws JSONException {

@@ -1,6 +1,8 @@
 package com.example.android.coinz;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
@@ -30,6 +32,13 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,6 +49,10 @@ public class MainActivity extends AppCompatActivity implements
         PermissionsListener {
 
     private String tag = "MainActivity";
+    private String downloadDate = ""; // Format: YYYY/MM/DD
+    private final String preferencesFile = "MyPrefsFile"; // for storing preferences
+    private static boolean fileDownloaded;
+
     private MapView mapView;
     static MapboxMap map;
 
@@ -84,6 +97,14 @@ public class MainActivity extends AppCompatActivity implements
 
     public static void setShilIcon(Icon shilIcon) {
         MainActivity.shilIcon = shilIcon;
+    }
+
+    public static boolean getFileDownloaded() {
+        return fileDownloaded;
+    }
+
+    public static void setFileDownloaded(boolean fileDownloaded) {
+        MainActivity.fileDownloaded = fileDownloaded;
     }
 
     @Override
@@ -141,11 +162,41 @@ public class MainActivity extends AppCompatActivity implements
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         LocalDateTime now = LocalDateTime.now();
-        System.out.println(dtf.format(now));
+        String todayDate = dtf.format(now);
+        if (!todayDate.equals(downloadDate)) {
+            //Download the GeoJSON file
+            downloadDate = todayDate;
+            setFileDownloaded(false);
+            DownloadFileTask task = new DownloadFileTask();
+            String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
+            task.execute(url);
+        }
+        else {
+            //Load map from the downloaded file
+            String geoJsonString = "";
+            setFileDownloaded(true);
+            try {
+                FileInputStream fis = openFileInput("coinzmap.geojson");
+                geoJsonString = readStream(fis);
+                DownloadCompleteRunner.downloadComplete(geoJsonString);
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
 
-        DownloadFileTask fileTask = new DownloadFileTask();
-        String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + dtf.format(now) + "/coinzmap.geojson";
-        fileTask.execute(url);
+        }
+    }
+
+    @NonNull
+    private String readStream(InputStream stream)
+            throws IOException {
+        // Read input from stream, build result as a string
+        StringBuilder sb = new StringBuilder();
+        BufferedReader r = new BufferedReader(new InputStreamReader(stream),1000);
+        for (String line = r.readLine(); line != null; line =r.readLine()){
+            sb.append(line);
+        }
+        stream.close();
+        return sb.toString();
     }
 
     @SuppressLint("LogNotTimber")
@@ -248,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    @SuppressLint("LogNotTimber")
     @SuppressWarnings( {"MissingPermission"})
     @Override
     protected void onStart() {
@@ -256,6 +308,10 @@ public class MainActivity extends AppCompatActivity implements
         if (locationLayerPlugin != null) {
             locationLayerPlugin.onStart();
         }
+        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
+        // use ”” as the default value (this might be the first time the app is run)
+        downloadDate = settings.getString("lastDownloadDate", "");
+        Log.d(tag,"[onStart] Recalled lastDownloadDate is ’"  + downloadDate + "’");
     }
 
     @Override
@@ -270,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements
         mapView.onPause();
     }
 
+    @SuppressLint("LogNotTimber")
     @Override
     protected void onStop() {
         super.onStop();
@@ -277,6 +334,14 @@ public class MainActivity extends AppCompatActivity implements
         if (locationLayerPlugin != null) {
             locationLayerPlugin.onStart();
         }
+        Log.d(tag,"[onStop] Storing lastDownloadDate of " + downloadDate);
+        // All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
+        // We need an Editor object to make preference changes.
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("lastDownloadDate", downloadDate);
+        // Apply the edits!
+        editor.apply();
     }
 
     @Override
@@ -295,9 +360,5 @@ public class MainActivity extends AppCompatActivity implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onBackPressed() {
     }
 }
