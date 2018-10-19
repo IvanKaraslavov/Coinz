@@ -16,4 +16,10 @@
     <string name="loginbutton">loginButton</string>
     <string name="if_you_don_t_have_an_account">If you don\'t have an account,</string>
     <string name="sign_up_now">sign up now</string>
+    <string name="title_activity_navigation_drawer">NavigationDrawer</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
 </resources>
