@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignUpPage extends AppCompatActivity {
 
@@ -46,11 +48,13 @@ public class SignUpPage extends AppCompatActivity {
     private void openLoginPage() {
         Intent intent = new Intent(this,LoginPage.class);
         startActivity(intent);
+        finish();
     }
 
     private void openCreateProfile() {
         Intent intent = new Intent(this,CreateProfilePage.class);
         startActivity(intent);
+        finish();
     }
 
     @SuppressLint("LogNotTimber")
@@ -64,17 +68,23 @@ public class SignUpPage extends AppCompatActivity {
         } else {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d("TESTING", "createUserWithEmail:success");
-                            Toast.makeText(SignUpPage.this, "Successfully created an account!",
-                                    Toast.LENGTH_SHORT).show();
-                            openCreateProfile();
-                        } else {
+                        if (!task.isSuccessful()) {
                             // If sign in fails, display a message to the user.
                             Log.w("TESTING", "createUserWithEmail:failure", task.getException());
                             Toast.makeText(SignUpPage.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                        } else {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("TESTING", "createUserWithEmail:success");
+                            Toast.makeText(SignUpPage.this, "Successfully created an account!",
+                                    Toast.LENGTH_SHORT).show();
+                            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+                            mAuth = FirebaseAuth.getInstance();
+                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                            assert currentUser != null;
+                            mDatabase.collection("users").document(currentUser.getUid())
+                                    .set(new Player(email, password));
+                            openCreateProfile();
                         }
                     });
         }

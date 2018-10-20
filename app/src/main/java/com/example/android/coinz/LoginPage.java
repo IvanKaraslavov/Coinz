@@ -5,21 +5,18 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Objects;
 
 public class LoginPage extends AppCompatActivity {
 
@@ -28,6 +25,7 @@ public class LoginPage extends AppCompatActivity {
     Typeface typeface;
 
     private FirebaseAuth mAuth;
+
 
     private TextView password;
     private TextView email;
@@ -53,9 +51,9 @@ public class LoginPage extends AppCompatActivity {
         customFontTextView = findViewById(R.id.logoCoinz);
         customFontTextView.setTypeface(typeface);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
 
     }

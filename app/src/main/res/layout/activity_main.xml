@@ -9,7 +9,7 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <include layout="@layout/nav_header_navigation_drawer"/>
+    <!--<include layout="@layout/nav_header_navigation_drawer"/>-->
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapboxMapView"

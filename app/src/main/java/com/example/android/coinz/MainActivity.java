@@ -23,6 +23,11 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -52,6 +57,7 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -137,13 +143,10 @@ public class MainActivity extends AppCompatActivity implements
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        loadData();
         Button mapButton = findViewById(R.id.button);
         mapButton.setOnClickListener(view -> drawer.openDrawer(Gravity.START));
 
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Oswald-Bold.ttf");
-        TextView customFontTextView = findViewById(R.id.hello);
-        customFontTextView.setTypeface(typeface);
     }
 
     @SuppressLint("LogNotTimber")
@@ -196,8 +199,7 @@ public class MainActivity extends AppCompatActivity implements
             DownloadFileTask task = new DownloadFileTask();
             String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
             task.execute(url);
-        }
-        else {
+        } else {
             //Load map from the downloaded file
             String geoJsonString;
             setFileDownloaded(true);
@@ -210,6 +212,37 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         }
+        Typeface typefaceBold = Typeface.createFromAsset(getAssets(), "fonts/Oswald-Bold.ttf");
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/Oswald-Light.ttf");
+        TextView customFontTextView = findViewById(R.id.hello);
+        customFontTextView.setTypeface(typeface);
+
+        TextView username = findViewById(R.id.usernameChange);
+        username.setTypeface(typefaceBold);
+
+    }
+    @SuppressLint({"LogNotTimber", "SetTextI18n"})
+    private void loadData() {
+        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (Objects.requireNonNull(document).exists()) {
+                    Log.d(tag, "DocumentSnapshot data: " + document.getData());
+                    TextView username = findViewById(R.id.usernameChange);
+                    username.setText( Objects.requireNonNull(document.get("username")).toString());
+                } else {
+                    Log.d(tag, "No such document");
+                    TextView username = findViewById(R.id.usernameChange);
+                    username.setText("THERE");
+                }
+            } else {
+                Log.d(tag, "get failed with ", task.getException());
+            }
+        });
     }
 
     @NonNull
@@ -390,12 +423,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+
     }
 
     @Override
