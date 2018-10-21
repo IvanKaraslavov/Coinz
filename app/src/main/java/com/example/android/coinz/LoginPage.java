@@ -61,11 +61,13 @@ public class LoginPage extends AppCompatActivity {
     private void openActivitySignUpPage() {
         Intent intent = new Intent(this,SignUpPage.class);
         startActivity(intent);
+        finish();
     }
 
     private void openMap() {
         Intent intent = new Intent(this,MainActivity.class);
         startActivity(intent);
+        finish();
     }
 
     @SuppressLint("LogNotTimber")

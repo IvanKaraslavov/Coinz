@@ -83,7 +83,7 @@ public class SignUpPage extends AppCompatActivity {
                             FirebaseUser currentUser = mAuth.getCurrentUser();
                             assert currentUser != null;
                             mDatabase.collection("users").document(currentUser.getUid())
-                                    .set(new Player(email, password));
+                                    .set(new Player(email, password,0));
                             openCreateProfile();
                         }
                     });

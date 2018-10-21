@@ -2,6 +2,7 @@ package com.example.android.coinz;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -453,8 +454,9 @@ public class MainActivity extends AppCompatActivity implements
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        if (id == R.id.bank_icon) {
+            Intent intent = new Intent(this,BankActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -463,12 +465,20 @@ public class MainActivity extends AppCompatActivity implements
 
         } else if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
 
+        } else if (id == R.id.log_out) {
+            FirebaseAuth.getInstance().signOut();
+            openLoginPage();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void openLoginPage() {
+        Intent intent = new Intent(this,LoginPage.class);
+        startActivity(intent);
+        finish();
     }
 }
