@@ -9,9 +9,9 @@
             android:icon="@drawable/bank_icon"
             android:title="@string/bank" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/wallet_icon"
+            android:icon="@drawable/wallet_icon"
+            android:title="Wallet" />
         <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"

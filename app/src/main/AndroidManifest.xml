@@ -34,8 +34,11 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".BankActivity"
-            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"/>
+        <activity
+            android:name=".BankActivity"
+            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar" />
+        <activity android:name=".WalletActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

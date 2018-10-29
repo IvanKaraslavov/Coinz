@@ -457,8 +457,9 @@ public class MainActivity extends AppCompatActivity implements
         if (id == R.id.bank_icon) {
             Intent intent = new Intent(this,BankActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
-
+        } else if (id == R.id.wallet_icon) {
+            Intent intent = new Intent(this,WalletActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
