@@ -55,7 +55,7 @@ public class BankActivity extends Activity {
         exit.setOnClickListener(view -> finish());
     }
 
-    @SuppressLint({"LogNotTimber", "SetTextI18n"})
+    @SuppressLint({"LogNotTimber", "SetTextI18n", "DefaultLocale"})
     private void loadData() {
         FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -67,7 +67,8 @@ public class BankActivity extends Activity {
                 if (Objects.requireNonNull(document).exists()) {
                     Log.d(tag, "DocumentSnapshot data: " + document.getData());
                     TextView username = findViewById(R.id.gold_coins);
-                    username.setText( Objects.requireNonNull(document.get("goldCoinsAmount")).toString());
+                    String coldCoins = Objects.requireNonNull(document.get("goldCoinsAmount")).toString();
+                    username.setText(String.format("%.2f", Double.parseDouble(coldCoins)));
                 } else {
                     Log.d(tag, "No such document");
                     TextView username = findViewById(R.id.gold_coins);

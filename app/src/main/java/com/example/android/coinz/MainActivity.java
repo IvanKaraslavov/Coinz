@@ -154,7 +154,14 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
         loadData();
         Button mapButton = findViewById(R.id.button);
-        mapButton.setOnClickListener(view -> drawer.openDrawer(Gravity.START));
+        mapButton.setOnClickListener(view -> {
+            try {
+                loadWallet();
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+            drawer.openDrawer(Gravity.START);
+        });
 
     }
 
@@ -366,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements
                 MainActivity.markers.remove(i);
                 Marker marker = MainActivity.map.getMarkers().get(i);
                 MainActivity.map.removeMarker(marker);
-                Toast.makeText(MainActivity.this, "Removed!" + i,
+                Toast.makeText(MainActivity.this, "Coin added to wallet!",
                         Toast.LENGTH_SHORT).show();
             }
         }

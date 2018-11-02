@@ -8,20 +8,36 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.example.android.coinz.MainActivity.wallet;
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class GridViewFragment extends Fragment {
     private Context context;
@@ -88,19 +104,33 @@ public class GridViewFragment extends Fragment {
                     break;
             }
             HashMap<String, BitmapDrawable> coin = new HashMap<>();
-            coin.put(currency + ": " + String.format("%.3f", value), icon);
+            coin.put(currency + ": " + String.format("%.5f", value), icon);
             coins.add(coin);
         }
         adapter = new GridListAdapter(context, coins);
         gridView.setAdapter(adapter);
     }
 
+    @SuppressLint("LogNotTimber")
     private void onClickEvent(View view) {
-        view.findViewById(R.id.show_button).setOnClickListener(view1 -> {
+        view.findViewById(R.id.transfer_button).setOnClickListener(view1 -> {
             SparseBooleanArray selectedRows = adapter.getSelectedIds();//Get the selected ids from adapter
+            JSONObject rates;
+            double shilRate = 0;
+            double dolrRate = 0;
+            double quidRate = 0;
+            double penyRate = 0;
+            try {
+                rates = new JSONObject(wallet.getString("rates"));
+                shilRate = rates.getDouble("SHIL");
+                dolrRate = rates.getDouble("DOLR");
+                quidRate = rates.getDouble("QUID");
+                penyRate = rates.getDouble("PENY");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             //Check if item is selected or not via size
             if (selectedRows.size() > 0) {
-                StringBuilder stringBuilder = new StringBuilder();
                 //Loop to all the selected rows array
                 for (int i = 0; i < selectedRows.size(); i++) {
 
@@ -109,33 +139,83 @@ public class GridViewFragment extends Fragment {
 
                         //Get the checked item text from array list by getting keyAt method of selectedRowsarray
                         HashMap<String, BitmapDrawable> selectedRowLabel = coins.get(selectedRows.keyAt(i));
-
-                        //append the row label text
-                        stringBuilder.append(selectedRowLabel).append("\n");
+                        for(Map.Entry<String, BitmapDrawable> entry : selectedRowLabel.entrySet()) {
+                            String key = entry.getKey();
+                            Pattern p = Pattern.compile("([A-Za-z]+)+: (\\d+.\\d+)");
+                            Matcher m = p.matcher(key);
+                            double value = 0;
+                            String currency = null;
+                            double currencyRate = 0;
+                            if (m.find()) {
+                                currency = m.group(1);
+                                value = Double.parseDouble(m.group(2));
+                            }
+                            assert currency != null;
+                            switch (currency) {
+                                case "QUID":
+                                    currencyRate = quidRate;
+                                    break;
+                                case "PENY":
+                                    currencyRate = penyRate;
+                                    break;
+                                case "SHIL":
+                                    currencyRate = shilRate;
+                                    break;
+                                case "DOLR":
+                                    currencyRate = dolrRate;
+                                    break;
+                            }
+                            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+                            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                            DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+                            double finalValue = value;
+                            double finalCurrencyRate = currencyRate;
+                            docRef.get().addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (Objects.requireNonNull(document).exists()) {
+                                        Log.d("GridView", "DocumentSnapshot data: " + document.getData());
+                                        double goldCoinsValue = Double.parseDouble(Objects.requireNonNull(document.get("goldCoinsAmount")).toString());
+                                        mDatabase.collection("users").document(currentUser.getUid())
+                                                .update("goldCoinsAmount", goldCoinsValue + finalValue * finalCurrencyRate);
+                                    } else {
+                                        Log.d("GridView", "No such document");
+                                    }
+                                } else {
+                                    Log.d("GridView", "get failed with ", task.getException());
+                                }
+                            });
+                        }
                     }
                 }
-                Toast.makeText(context, "Selected Rows\n" + stringBuilder.toString(), Toast.LENGTH_SHORT).show();
-            }
-
-        });
-        view.findViewById(R.id.delete_button).setOnClickListener(view12 -> {
-            SparseBooleanArray selectedRows = adapter.getSelectedIds();//Get the selected ids from adapter
-            //Check if item is selected or not via size
-            if (selectedRows.size() > 0) {
-                //Loop to all the selected rows array
+                JSONObject wallet = MainActivity.wallet;
+                JSONArray walletCoins;
+                try {
+                    walletCoins = wallet.getJSONArray("coins");
+                } catch (Exception e) {
+                    walletCoins = new JSONArray();
+                }
                 for (int i = (selectedRows.size() - 1); i >= 0; i--) {
-
                     //Check if selected rows have value i.e. checked item
                     if (selectedRows.valueAt(i)) {
-
                         //remove the checked item
                         coins.remove(selectedRows.keyAt(i));
+                        walletCoins.remove(selectedRows.keyAt(i));
                     }
                 }
-
                 //notify the adapter and remove all checked selection
-                adapter.removeSelection();
+               adapter.removeSelection();
+                try {
+                    wallet.remove("coins");
+                    JSONObject updateJson = new JSONObject(wallet.toString());
+                    updateJson.put("coins", walletCoins);
+                    updateFile(updateJson.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+
         });
         selectButton.setOnClickListener(view13 -> {
             //Check the current text of Select Button
@@ -156,6 +236,18 @@ public class GridViewFragment extends Fragment {
             }
         });
 
+    }
+
+    private void updateFile(String result) {
+        // Add the geojson text into a file in internal storage
+        try {
+            FileOutputStream file = getApplicationContext().openFileOutput("walletCoins.geojson", MODE_PRIVATE);
+            OutputStreamWriter outputWriter=new OutputStreamWriter(file);
+            outputWriter.write(result);
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

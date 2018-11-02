@@ -4,9 +4,9 @@ public class Player {
     private String email;
     private String password;
 
-    private int goldCoinsAmount;
+    private double goldCoinsAmount;
 
-    Player(String email, String password, int goldCoinsAmount) {
+    Player(String email, String password, double goldCoinsAmount) {
         this.email = email;
         this.password = password;
         this.goldCoinsAmount = goldCoinsAmount;
@@ -20,7 +20,7 @@ public class Player {
         return password;
     }
 
-    public int getGoldCoinsAmount() {
+    public double getGoldCoinsAmount() {
         return goldCoinsAmount;
     }
 }
