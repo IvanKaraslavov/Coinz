@@ -1,5 +1,6 @@
 package com.example.android.coinz;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -14,6 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,22 +48,49 @@ public class GridViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         selectButton = view.findViewById(R.id.select_button);
-        loadGridView(view);
+        try {
+            loadGridView(view);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         onClickEvent(view);
     }
 
-    private void loadGridView(View view) {
+    @SuppressLint("DefaultLocale")
+    private void loadGridView(View view) throws JSONException {
         GridView gridView = view.findViewById(R.id.grid_view);
         coins = new ArrayList<>();
-
-        for (int i = 1; i <= 50; i++) {
-            BitmapDrawable shil = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.shil, null);
+        JSONObject wallet = MainActivity.wallet;
+        JSONArray walletCoins;
+        try {
+            walletCoins = wallet.getJSONArray("coins");
+        } catch (Exception e) {
+            walletCoins = new JSONArray();
+        }
+        for (int i = 0; i < walletCoins.length(); i++) {
+            BitmapDrawable icon = null;
+            JSONObject obj = walletCoins.getJSONObject(i);
+            JSONObject properties = obj.getJSONObject("properties");
+            double value = properties.getDouble("value");
+            String currency = properties.getString("currency");
+            switch (currency) {
+                case "QUID":
+                    icon = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.quid, null);
+                    break;
+                case "PENY":
+                    icon = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.penny, null);
+                    break;
+                case "SHIL":
+                    icon = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.shil, null);
+                    break;
+                case "DOLR":
+                    icon = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.dolr, null);
+                    break;
+            }
             HashMap<String, BitmapDrawable> coin = new HashMap<>();
-            coin.put("100 SHIL VALUE", shil);
+            coin.put(currency + ": " + String.format("%.3f", value), icon);
             coins.add(coin);
         }
-
-
         adapter = new GridListAdapter(context, coins);
         gridView.setAdapter(adapter);
     }

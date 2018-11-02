@@ -28,39 +28,37 @@ public class DownloadCompleteRunner {
         }
     }
 
-    public static void writeFile() {
+    private static void writeFile() {
         // Add the geojson text into a file in internal storage
         try {
-            FileOutputStream file = getApplicationContext().openFileOutput("coinzmap.geojson", MODE_PRIVATE);
-            OutputStreamWriter outputWriter=new OutputStreamWriter(file);
-            outputWriter.write(result);
-            outputWriter.close();
+            FileOutputStream fileMap = getApplicationContext().openFileOutput("coinzmap.geojson", MODE_PRIVATE);
+            OutputStreamWriter outputWriterMap=new OutputStreamWriter(fileMap);
+            outputWriterMap.write(result);
+            outputWriterMap.close();
+
+            FileOutputStream fileWallet = getApplicationContext().openFileOutput("walletCoins.geojson", MODE_PRIVATE);
+            OutputStreamWriter outputWriterWallet=new OutputStreamWriter(fileWallet);
+            JSONObject wallet = new JSONObject();
+            wallet.put("coins", new JSONArray());
+            outputWriterWallet.write(wallet.toString());
+            outputWriterWallet.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private static void getInformation(JSONObject jsonObject) throws JSONException {
-        JSONObject rates = new JSONObject(jsonObject.getString("rates"));
-        double shilRate = rates.getDouble("SHIL");
-        double dolrRate = rates.getDouble("DOLR");
-        double quidRate = rates.getDouble("QUID");
-        double penyRate = rates.getDouble("PENY");
-
         JSONArray features = jsonObject.getJSONArray("features");
         MainActivity.markers = new ArrayList<>();
         for (int i = 0; i < features.length(); i++) {
             JSONObject obj = features.getJSONObject(i);
             JSONObject properties = obj.getJSONObject("properties");
-            String id = properties.getString("id");
-            double value = properties.getDouble("value");
             String currency = properties.getString("currency");
             String markerSymbol = properties.getString("marker-symbol");
             JSONObject geometry = obj.getJSONObject("geometry");
             JSONArray coordinates = geometry.getJSONArray("coordinates");
             double lat = coordinates.getDouble(1);
             double lng = coordinates.getDouble(0);
-            Coin coin = new Coin(id,value,currency,markerSymbol,lat,lng);
 
             Icon icon = null;
             switch (currency) {
@@ -82,10 +80,11 @@ public class DownloadCompleteRunner {
             marker.title(markerSymbol).snippet(currency).icon(icon).position(new LatLng(lat, lng));
             MainActivity.markers.add(marker);
             MainActivity.map.addMarker(marker);
+
         }
     }
 
-    public static String getResult() {
+    private static String getResult() {
         return result;
     }
 }

@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,6 +39,7 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -48,17 +50,22 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -79,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements
     private Location originLocation;
 
     static List<MarkerOptions> markers;
+    static JSONObject wallet;
     static private Icon dolrIcon;
     static private Icon penyIcon;
     static private Icon quidIcon;
@@ -332,7 +340,79 @@ public class MainActivity extends AppCompatActivity implements
             Log.d(tag, "[onLocationChanged] location is not null");
             originLocation = location;
             setCameraPosition(location);
+            try {
+                FileInputStream fis = openFileInput("coinzmap.geojson");
+                JSONObject jsonObject = new JSONObject(readStream(fis));
+                getCoins(jsonObject, location);
+                loadWallet();
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    private void getCoins(JSONObject jsonObject, Location userLocation) throws JSONException, IOException {
+        JSONObject rates = new JSONObject(jsonObject.getString("rates"));
+        JSONArray features = jsonObject.getJSONArray("features");
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject obj = features.getJSONObject(i);
+            JSONObject geometry = obj.getJSONObject("geometry");
+            JSONArray coordinates = geometry.getJSONArray("coordinates");
+            double lat = coordinates.getDouble(1);
+            double lng = coordinates.getDouble(0);
+            if(distFrom(lat, lng, userLocation.getLatitude(), userLocation.getLongitude()) <= 25) {
+                updateWallet(features.get(i), rates);
+                features.remove(i);
+                MainActivity.markers.remove(i);
+                Marker marker = MainActivity.map.getMarkers().get(i);
+                MainActivity.map.removeMarker(marker);
+                Toast.makeText(MainActivity.this, "Removed!" + i,
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        jsonObject.remove("features");
+        JSONObject updateJson = new JSONObject(jsonObject.toString());
+        updateJson.put("features", features);
+        updateFile(updateJson.toString(), "coinzmap.geojson");
+    }
+
+    private void updateWallet(Object coin, JSONObject rates) throws IOException, JSONException {
+        FileInputStream file = openFileInput("walletCoins.geojson");
+        JSONObject jsonObject = new JSONObject(readStream(file));
+        JSONArray coins = jsonObject.getJSONArray("coins");
+        coins.put(coin);
+        jsonObject.put("rates", rates);
+        jsonObject.put("coins", coins);
+        updateFile(jsonObject.toString(), "walletCoins.geojson");
+    }
+
+    private void loadWallet() throws IOException, JSONException {
+        FileInputStream file = openFileInput("walletCoins.geojson");
+        wallet = new JSONObject(readStream(file));
+    }
+
+    private void updateFile(String result, String fileName) {
+        // Add the geojson text into a file in internal storage
+        try {
+            FileOutputStream file = getApplicationContext().openFileOutput(fileName, MODE_PRIVATE);
+            OutputStreamWriter outputWriter=new OutputStreamWriter(file);
+            outputWriter.write(result);
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static double distFrom(double lat1, double lng1, double lat2, double lng2) {
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(lng2-lng1);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLng/2) * Math.sin(dLng/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        return (earthRadius * c);
     }
 
     @SuppressLint("LogNotTimber")
@@ -420,11 +500,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onBackPressed() {
-
     }
 
     @Override
