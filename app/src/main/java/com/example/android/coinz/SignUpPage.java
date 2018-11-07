@@ -22,6 +22,7 @@ public class SignUpPage extends AppCompatActivity {
     private TextView password;
     private TextView email;
     private TextView passwordConfirm;
+    private int coinsLeft = 25;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +84,7 @@ public class SignUpPage extends AppCompatActivity {
                             FirebaseUser currentUser = mAuth.getCurrentUser();
                             assert currentUser != null;
                             mDatabase.collection("users").document(currentUser.getUid())
-                                    .set(new Player(email, password,0));
+                                    .set(new Player(email, password,0, coinsLeft));
                             openCreateProfile();
                         }
                     });

@@ -215,6 +215,13 @@ public class MainActivity extends AppCompatActivity implements
             DownloadFileTask task = new DownloadFileTask();
             String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
             task.execute(url);
+            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            assert currentUser != null;
+            int COINS_LEFT = 25;
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("coinsLeft", COINS_LEFT);
         } else {
             //Load map from the downloaded file
             String geoJsonString;

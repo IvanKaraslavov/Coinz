@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,6 +46,7 @@ public class GridViewFragment extends Fragment {
     private GridListAdapter adapter;
     private ArrayList<HashMap<String, BitmapDrawable>> coins;
     private Button selectButton;
+    private String tag = "GridView";
 
     public GridViewFragment() {
     }
@@ -114,107 +117,130 @@ public class GridViewFragment extends Fragment {
     @SuppressLint("LogNotTimber")
     private void onClickEvent(View view) {
         view.findViewById(R.id.transfer_button).setOnClickListener(view1 -> {
-            SparseBooleanArray selectedRows = adapter.getSelectedIds();//Get the selected ids from adapter
-            JSONObject rates;
-            double shilRate = 0;
-            double dolrRate = 0;
-            double quidRate = 0;
-            double penyRate = 0;
-            try {
-                rates = new JSONObject(wallet.getString("rates"));
-                shilRate = rates.getDouble("SHIL");
-                dolrRate = rates.getDouble("DOLR");
-                quidRate = rates.getDouble("QUID");
-                penyRate = rates.getDouble("PENY");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            //Check if item is selected or not via size
-            if (selectedRows.size() > 0) {
-                //Loop to all the selected rows array
-                for (int i = 0; i < selectedRows.size(); i++) {
+            SparseBooleanArray selectedRows = adapter.getSelectedIds(); //Get the selected ids from adapter
+            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (Objects.requireNonNull(document).exists()) {
+                        Log.d("GridView", "DocumentSnapshot data: " + document.getData());
+                         String str = Objects.requireNonNull(document.get("coinsLeft")).toString();
+                         int coinsLeft = Integer.parseInt(str);
+                         if(coinsLeft >= selectedRows.size()) {
+                             mDatabase.collection("users").document(currentUser.getUid())
+                                     .update("coinsLeft", (coinsLeft - selectedRows.size()));
 
-                    //Check if selected rows have value i.e. checked item
-                    if (selectedRows.valueAt(i)) {
+                             JSONObject rates;
+                             double shilRate = 0;
+                             double dolrRate = 0;
+                             double quidRate = 0;
+                             double penyRate = 0;
+                             try {
+                                 rates = new JSONObject(wallet.getString("rates"));
+                                 shilRate = rates.getDouble("SHIL");
+                                 dolrRate = rates.getDouble("DOLR");
+                                 quidRate = rates.getDouble("QUID");
+                                 penyRate = rates.getDouble("PENY");
+                             } catch (JSONException e) {
+                                 e.printStackTrace();
+                             }
+                             //Check if item is selected or not via size
+                             if (selectedRows.size() > 0) {
+                                 //Loop to all the selected rows array
+                                 for (int i = 0; i < selectedRows.size(); i++) {
 
-                        //Get the checked item text from array list by getting keyAt method of selectedRowsarray
-                        HashMap<String, BitmapDrawable> selectedRowLabel = coins.get(selectedRows.keyAt(i));
-                        for(Map.Entry<String, BitmapDrawable> entry : selectedRowLabel.entrySet()) {
-                            String key = entry.getKey();
-                            Pattern p = Pattern.compile("([A-Za-z]+)+: (\\d+.\\d+)");
-                            Matcher m = p.matcher(key);
-                            double value = 0;
-                            String currency = null;
-                            double currencyRate = 0;
-                            if (m.find()) {
-                                currency = m.group(1);
-                                value = Double.parseDouble(m.group(2));
-                            }
-                            assert currency != null;
-                            switch (currency) {
-                                case "QUID":
-                                    currencyRate = quidRate;
-                                    break;
-                                case "PENY":
-                                    currencyRate = penyRate;
-                                    break;
-                                case "SHIL":
-                                    currencyRate = shilRate;
-                                    break;
-                                case "DOLR":
-                                    currencyRate = dolrRate;
-                                    break;
-                            }
-                            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
-                            FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                            FirebaseUser currentUser = mAuth.getCurrentUser();
-                            DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
-                            double finalValue = value;
-                            double finalCurrencyRate = currencyRate;
-                            docRef.get().addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if (Objects.requireNonNull(document).exists()) {
-                                        Log.d("GridView", "DocumentSnapshot data: " + document.getData());
-                                        double goldCoinsValue = Double.parseDouble(Objects.requireNonNull(document.get("goldCoinsAmount")).toString());
-                                        mDatabase.collection("users").document(currentUser.getUid())
-                                                .update("goldCoinsAmount", goldCoinsValue + finalValue * finalCurrencyRate);
-                                    } else {
-                                        Log.d("GridView", "No such document");
-                                    }
-                                } else {
-                                    Log.d("GridView", "get failed with ", task.getException());
-                                }
-                            });
-                        }
+                                     //Check if selected rows have value i.e. checked item
+                                     if (selectedRows.valueAt(i)) {
+
+                                         //Get the checked item text from array list by getting keyAt method of selectedRowsarray
+                                         HashMap<String, BitmapDrawable> selectedRowLabel = coins.get(selectedRows.keyAt(i));
+                                         for(Map.Entry<String, BitmapDrawable> entry : selectedRowLabel.entrySet()) {
+                                             String key = entry.getKey();
+                                             Pattern p = Pattern.compile("([A-Za-z]+)+: (\\d+.\\d+)");
+                                             Matcher m = p.matcher(key);
+                                             double value = 0;
+                                             String currency = null;
+                                             double currencyRate = 0;
+                                             if (m.find()) {
+                                                 currency = m.group(1);
+                                                 value = Double.parseDouble(m.group(2));
+                                             }
+                                             assert currency != null;
+                                             switch (currency) {
+                                                 case "QUID":
+                                                     currencyRate = quidRate;
+                                                     break;
+                                                 case "PENY":
+                                                     currencyRate = penyRate;
+                                                     break;
+                                                 case "SHIL":
+                                                     currencyRate = shilRate;
+                                                     break;
+                                                 case "DOLR":
+                                                     currencyRate = dolrRate;
+                                                     break;
+                                             }
+                                             double finalValue = value;
+                                             double finalCurrencyRate = currencyRate;
+                                             docRef.get().addOnCompleteListener(task_coins -> {
+                                                 if (task_coins.isSuccessful()) {
+                                                     DocumentSnapshot document_coins = task_coins.getResult();
+                                                     if (Objects.requireNonNull(document_coins).exists()) {
+                                                         Log.d("GridView", "DocumentSnapshot data: " + document_coins.getData());
+                                                         double goldCoinsValue = Double.parseDouble(Objects.requireNonNull(document_coins.get("goldCoinsAmount")).toString());
+                                                         mDatabase.collection("users").document(currentUser.getUid())
+                                                                 .update("goldCoinsAmount", goldCoinsValue + finalValue * finalCurrencyRate);
+                                                     } else {
+                                                         Log.d("GridView", "No such document");
+                                                     }
+                                                 } else {
+                                                     Log.d("GridView", "get failed with ", task_coins.getException());
+                                                 }
+                                             });
+                                         }
+                                     }
+                                 }
+                                 JSONObject wallet = MainActivity.wallet;
+                                 JSONArray walletCoins;
+                                 try {
+                                     walletCoins = wallet.getJSONArray("coins");
+                                 } catch (Exception e) {
+                                     walletCoins = new JSONArray();
+                                 }
+                                 for (int i = (selectedRows.size() - 1); i >= 0; i--) {
+                                     //Check if selected rows have value i.e. checked item
+                                     if (selectedRows.valueAt(i)) {
+                                         //remove the checked item
+                                         coins.remove(selectedRows.keyAt(i));
+                                         walletCoins.remove(selectedRows.keyAt(i));
+                                     }
+                                 }
+                                 //notify the adapter and remove all checked selection
+                                 adapter.removeSelection();
+                                 try {
+                                     wallet.remove("coins");
+                                     JSONObject updateJson = new JSONObject(wallet.toString());
+                                     updateJson.put("coins", walletCoins);
+                                     updateFile(updateJson.toString());
+                                 } catch (JSONException e) {
+                                     e.printStackTrace();
+                                 }
+                             }
+                             updateLayout();
+                         } else {
+                             Toast.makeText(getActivity(), "You exceeded your coins transfer limit!",
+                                     Toast.LENGTH_SHORT).show();
+                         }
+                    } else {
+                        Log.d("GridView", "No such document");
                     }
+                } else {
+                    Log.d("GridView", "get failed with ", task.getException());
                 }
-                JSONObject wallet = MainActivity.wallet;
-                JSONArray walletCoins;
-                try {
-                    walletCoins = wallet.getJSONArray("coins");
-                } catch (Exception e) {
-                    walletCoins = new JSONArray();
-                }
-                for (int i = (selectedRows.size() - 1); i >= 0; i--) {
-                    //Check if selected rows have value i.e. checked item
-                    if (selectedRows.valueAt(i)) {
-                        //remove the checked item
-                        coins.remove(selectedRows.keyAt(i));
-                        walletCoins.remove(selectedRows.keyAt(i));
-                    }
-                }
-                //notify the adapter and remove all checked selection
-               adapter.removeSelection();
-                try {
-                    wallet.remove("coins");
-                    JSONObject updateJson = new JSONObject(wallet.toString());
-                    updateJson.put("coins", walletCoins);
-                    updateFile(updateJson.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+            });
 
         });
         selectButton.setOnClickListener(view13 -> {
@@ -248,6 +274,28 @@ public class GridViewFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @SuppressLint("LogNotTimber")
+    private void updateLayout() {
+        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (Objects.requireNonNull(document).exists()) {
+                    Log.d(tag, "DocumentSnapshot data: " + document.getData());
+                    TextView coinsNumber= Objects.requireNonNull(getActivity()).findViewById(R.id.coins_number);
+                    coinsNumber.setText( Objects.requireNonNull(document.get("coinsLeft")).toString());
+                } else {
+                    Log.d(tag, "No such document");
+                }
+            } else {
+                Log.d(tag, "get failed with ", task.getException());
+            }
+        });
     }
 
 }
