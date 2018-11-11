@@ -22,6 +22,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -155,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements
         loadData();
         Button mapButton = findViewById(R.id.button);
         mapButton.setOnClickListener(view -> {
+            loadData();
             try {
                 loadWallet();
             } catch (IOException | JSONException e) {
@@ -257,6 +259,21 @@ public class MainActivity extends AppCompatActivity implements
                     Log.d(tag, "DocumentSnapshot data: " + document.getData());
                     TextView username = findViewById(R.id.usernameChange);
                     username.setText( Objects.requireNonNull(document.get("username")).toString());
+
+                    ImageView avatar = findViewById(R.id.avatarImage);
+                    long avatarNumber = (long) document.get("currentAvatar");
+                    switch ((int) avatarNumber) {
+                        case 1: avatar.setImageResource(R.drawable.rabbit);
+                        break;
+                        case 2: avatar.setImageResource(R.drawable.dog);
+                        break;
+                        case 3: avatar.setImageResource(R.drawable.cat);
+                        break;
+                        case 4: avatar.setImageResource(R.drawable.koala);
+                        break;
+                        default:  avatar.setImageResource(R.drawable.rabbit);
+                        break;
+                    }
                 } else {
                     Log.d(tag, "No such document");
                     TextView username = findViewById(R.id.usernameChange);
@@ -549,8 +566,9 @@ public class MainActivity extends AppCompatActivity implements
         } else if (id == R.id.wallet_icon) {
             Intent intent = new Intent(this,WalletActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_slideshow) {
-
+        } else if (id == R.id.shop_icon) {
+            Intent intent = new Intent(this,AvatarsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {

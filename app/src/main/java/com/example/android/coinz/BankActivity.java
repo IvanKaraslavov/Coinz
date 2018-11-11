@@ -67,8 +67,8 @@ public class BankActivity extends Activity {
                 if (Objects.requireNonNull(document).exists()) {
                     Log.d(tag, "DocumentSnapshot data: " + document.getData());
                     TextView username = findViewById(R.id.gold_coins);
-                    String coldCoins = Objects.requireNonNull(document.get("goldCoinsAmount")).toString();
-                    username.setText(String.format("%.2f", Double.parseDouble(coldCoins)));
+                    String goldCoins = Objects.requireNonNull(document.get("goldCoinsAmount")).toString();
+                    username.setText(String.format("%.2f", Double.parseDouble(goldCoins)));
                 } else {
                     Log.d(tag, "No such document");
                     TextView username = findViewById(R.id.gold_coins);

@@ -71,7 +71,7 @@ public class WalletActivity extends AppCompatActivity {
         //Setting View Pager
         private void setupViewPager(ViewPager viewPager) {
             ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-            adapter.addFrag(new GridViewFragment());
+            adapter.addFrag(new GridViewFragmentWallet());
             viewPager.setAdapter(adapter);
         }
     }

@@ -88,7 +88,7 @@ public class LoginPage extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("TESTING", "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginPage.this, "Authentication failed.",
+                            Toast.makeText(LoginPage.this, "Authentication failed. There is no such user record.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     });

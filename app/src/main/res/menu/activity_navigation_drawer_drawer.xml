@@ -13,9 +13,9 @@
             android:icon="@drawable/wallet_icon"
             android:title="Wallet" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/shop_icon"
+            android:icon="@drawable/shop_icon"
+            android:title="Shop" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"

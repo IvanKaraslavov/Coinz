@@ -146,7 +146,7 @@
         app:srcCompat="@drawable/signupbutton" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/avatarImage"
         android:layout_width="426dp"
         android:layout_height="45dp"
         android:layout_marginTop="8dp"
@@ -188,7 +188,7 @@
         app:layout_constraintBottom_toTopOf="@+id/barrier2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.27"
-        app:layout_constraintStart_toStartOf="@+id/imageView"
+        app:layout_constraintStart_toStartOf="@+id/avatarImage"
         app:layout_constraintTop_toBottomOf="@+id/signupButton"
         app:layout_constraintVertical_bias="0.93" />
 
@@ -203,7 +203,7 @@
         android:textColor="@android:color/background_light"
         android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="@+id/avatarImage"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/haveAccount"
         app:layout_constraintTop_toBottomOf="@+id/signupButton"

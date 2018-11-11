@@ -41,14 +41,14 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.example.android.coinz.MainActivity.wallet;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
-public class GridViewFragment extends Fragment {
+public class GridViewFragmentWallet extends Fragment {
     private Context context;
-    private GridListAdapter adapter;
+    private GridListAdapterWallet adapter;
     private ArrayList<HashMap<String, BitmapDrawable>> coins;
     private Button selectButton;
     private String tag = "GridView";
 
-    public GridViewFragment() {
+    public GridViewFragmentWallet() {
     }
 
     @Override
@@ -60,7 +60,7 @@ public class GridViewFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.grid_view_fragment, container, false);
+        return inflater.inflate(R.layout.grid_view_fragment_wallet, container, false);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class GridViewFragment extends Fragment {
             coin.put(currency + ": " + String.format("%.5f", value), icon);
             coins.add(coin);
         }
-        adapter = new GridListAdapter(context, coins);
+        adapter = new GridListAdapterWallet(context, coins);
         gridView.setAdapter(adapter);
     }
 

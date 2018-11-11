@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GridListAdapter extends BaseAdapter {
+public class GridListAdapterWallet extends BaseAdapter {
     private ArrayList<HashMap<String, BitmapDrawable>> coins;
     private LayoutInflater inflater;
     private SparseBooleanArray mSelectedItemsIds;
 
-    GridListAdapter(Context context, ArrayList<HashMap<String, BitmapDrawable>> arrayList) {
+    GridListAdapterWallet(Context context, ArrayList<HashMap<String, BitmapDrawable>> arrayList) {
         this.coins = arrayList;
         inflater = LayoutInflater.from(context);
         mSelectedItemsIds = new SparseBooleanArray();
@@ -47,7 +47,7 @@ public class GridListAdapter extends BaseAdapter {
         if (view == null) {
             viewHolder = new ViewHolder();
 
-            view = inflater.inflate(R.layout.grid_custom_row_layout, viewGroup, false);
+            view = inflater.inflate(R.layout.grid_custom_row_layout_wallet, viewGroup, false);
 
             viewHolder.image = view.findViewById(R.id.label);
             viewHolder.description =  view.findViewById(R.id.description);

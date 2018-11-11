@@ -15,6 +15,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Objects;
+
 public class SignUpPage extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -72,7 +74,7 @@ public class SignUpPage extends AppCompatActivity {
                         if (!task.isSuccessful()) {
                             // If sign in fails, display a message to the user.
                             Log.w("TESTING", "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpPage.this, "Authentication failed.",
+                            Toast.makeText(SignUpPage.this, "Authentication failed." + Objects.requireNonNull(task.getException()).getMessage(),
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             // Sign in success, update UI with the signed-in user's information
