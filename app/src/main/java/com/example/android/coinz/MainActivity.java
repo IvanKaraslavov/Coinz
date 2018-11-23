@@ -224,6 +224,8 @@ public class MainActivity extends AppCompatActivity implements
             int COINS_LEFT = 25;
             mDatabase.collection("users").document(currentUser.getUid())
                     .update("coinsLeft", COINS_LEFT);
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("boosterBought", false);
         } else {
             //Load map from the downloaded file
             String geoJsonString;
@@ -382,29 +384,103 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void getCoins(JSONObject jsonObject, Location userLocation) throws JSONException, IOException {
-        JSONObject rates = new JSONObject(jsonObject.getString("rates"));
-        JSONArray features = jsonObject.getJSONArray("features");
-        for (int i = 0; i < features.length(); i++) {
-            JSONObject obj = features.getJSONObject(i);
-            JSONObject geometry = obj.getJSONObject("geometry");
-            JSONArray coordinates = geometry.getJSONArray("coordinates");
-            double lat = coordinates.getDouble(1);
-            double lng = coordinates.getDouble(0);
-            if(distFrom(lat, lng, userLocation.getLatitude(), userLocation.getLongitude()) <= 25) {
-                updateWallet(features.get(i), rates);
-                features.remove(i);
-                MainActivity.markers.remove(i);
-                Marker marker = MainActivity.map.getMarkers().get(i);
-                MainActivity.map.removeMarker(marker);
-                Toast.makeText(MainActivity.this, "Coin added to wallet!",
-                        Toast.LENGTH_SHORT).show();
+    @SuppressLint("LogNotTimber")
+    private void getCoins(JSONObject jsonObject, Location userLocation) {
+        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (Objects.requireNonNull(document).exists()) {
+                    boolean boosterBought = (boolean) document.get("boosterBought");
+                    JSONObject rates = null;
+                    try {
+                        rates = new JSONObject(jsonObject.getString("rates"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    JSONArray features = null;
+                    try {
+                        features = jsonObject.getJSONArray("features");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    assert features != null;
+                    for (int i = 0; i < features.length(); i++) {
+                        JSONObject obj = null;
+                        try {
+                            obj = features.getJSONObject(i);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        JSONObject geometry = null;
+                        try {
+                            assert obj != null;
+                            geometry = obj.getJSONObject("geometry");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        JSONArray coordinates = null;
+                        try {
+                            assert geometry != null;
+                            coordinates = geometry.getJSONArray("coordinates");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        double lat = 0;
+                        try {
+                            assert coordinates != null;
+                            lat = coordinates.getDouble(1);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        double lng = 0;
+                        try {
+                            lng = coordinates.getDouble(0);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        int metresArea = 25;
+                        if(boosterBought) {
+                            metresArea = 75;
+                        }
+                        if(distFrom(lat, lng, userLocation.getLatitude(), userLocation.getLongitude()) <= metresArea) {
+                            try {
+                                updateWallet(features.get(i), rates);
+                            } catch (IOException | JSONException e) {
+                                e.printStackTrace();
+                            }
+                            features.remove(i);
+                            MainActivity.markers.remove(i);
+                            Marker marker = MainActivity.map.getMarkers().get(i);
+                            MainActivity.map.removeMarker(marker);
+                            Toast.makeText(MainActivity.this, "Coin added to wallet!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    jsonObject.remove("features");
+                    JSONObject updateJson = null;
+                    try {
+                        updateJson = new JSONObject(jsonObject.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        assert updateJson != null;
+                        updateJson.put("features", features);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    updateFile(updateJson.toString(), "coinzmap.geojson");
+                } else {
+                    Log.d(tag, "No such document");
+                }
+            } else {
+                Log.d(tag, "get failed with ", task.getException());
             }
-        }
-        jsonObject.remove("features");
-        JSONObject updateJson = new JSONObject(jsonObject.toString());
-        updateJson.put("features", features);
-        updateFile(updateJson.toString(), "coinzmap.geojson");
+        });
     }
 
     private void updateWallet(Object coin, JSONObject rates) throws IOException, JSONException {
@@ -570,7 +646,8 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(this,AvatarsActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_manage) {
-
+            Intent intent = new Intent(this,BoostersActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_share) {
 
 

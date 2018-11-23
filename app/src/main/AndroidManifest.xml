@@ -42,7 +42,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".AvatarsActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".BoostersActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
     </application>
 
 </manifest>
