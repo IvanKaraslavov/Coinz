@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#E6EEF4"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BoostersActivity">
+
+    <ImageView
+        android:id="@+id/boosters_background"
+        android:layout_width="522dp"
+        android:layout_height="167dp"
+        android:layout_gravity="top|center"
+        android:contentDescription="Shop Background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.585"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/boosters_background"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/boosters_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="176dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="BOOSTERS"
+        android:textColor="#272E52"
+        android:textSize="40sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/boosters_background"
+        app:layout_constraintVertical_bias="0.39"
+        tools:ignore="HardcodedText" />
+
+
+    <ImageView
+        android:id="@+id/exit_booster"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="cross image"
+        android:src="@android:drawable/ic_delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
+
+    <ImageView
+        android:id="@+id/image_booster"
+        android:layout_width="273dp"
+        android:layout_height="268dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/boosters_text"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/image_booster"
+        android:contentDescription="image_booster"
+        tools:ignore="HardcodedText" />
+
+    <ImageButton
+        android:id="@+id/booster_button"
+        android:layout_width="228dp"
+        android:layout_height="54dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_booster"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/booster_button"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/booster_note"
+        android:layout_width="385dp"
+        android:layout_height="75dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:text="The booster triples the area for collecting coins. Note that the duration of the booster is untill the end of the calendar day when bought"
+        android:textAlignment="center"
+        android:textColor="#272E52"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/booster_button"
+        tools:ignore="HardcodedText" />
+
+</android.support.constraint.ConstraintLayout>

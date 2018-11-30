@@ -46,6 +46,9 @@
         <activity android:name=".BoostersActivity"
             android:theme="@style/AppTheme.NoActionBar"
             />
+        <activity
+            android:name=".QuestionsActivity"
+            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar" />
     </application>
 
 </manifest>

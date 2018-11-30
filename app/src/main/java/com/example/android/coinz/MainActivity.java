@@ -66,7 +66,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -226,6 +227,10 @@ public class MainActivity extends AppCompatActivity implements
                     .update("coinsLeft", COINS_LEFT);
             mDatabase.collection("users").document(currentUser.getUid())
                     .update("boosterBought", false);
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("currCoinValue", 0);
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("steps", 0);
         } else {
             //Load map from the downloaded file
             String geoJsonString;
@@ -367,21 +372,40 @@ public class MainActivity extends AppCompatActivity implements
     @SuppressLint("LogNotTimber")
     @Override
     public void onLocationChanged(Location location) {
-        if (location == null) {
-            Log.d(tag, "[onLocationChanged] location is null");
-        } else {
-            Log.d(tag, "[onLocationChanged] location is not null");
-            originLocation = location;
-            setCameraPosition(location);
-            try {
-                FileInputStream fis = openFileInput("coinzmap.geojson");
-                JSONObject jsonObject = new JSONObject(readStream(fis));
-                getCoins(jsonObject, location);
-                loadWallet();
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
+        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (Objects.requireNonNull(document).exists()) {
+                    Log.d(tag, "DocumentSnapshot data: " + document.getData());
+                    if (location == null) {
+                        Log.d(tag, "[onLocationChanged] location is null");
+                    } else {
+                        Log.d(tag, "[onLocationChanged] location is not null");
+                        long steps = (long) document.get("steps");
+                        mDatabase.collection("users").document(currentUser.getUid())
+                                .update("steps", steps+1);
+                        originLocation = location;
+                        setCameraPosition(location);
+                        try {
+                            FileInputStream fis = openFileInput("coinzmap.geojson");
+                            JSONObject jsonObject = new JSONObject(readStream(fis));
+                            getCoins(jsonObject, location);
+                            loadWallet();
+                        } catch (IOException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    Log.d(tag, "No such document");
+                }
+            } else {
+                Log.d(tag, "get failed with ", task.getException());
             }
-        }
+        });
     }
 
     @SuppressLint("LogNotTimber")
@@ -448,6 +472,17 @@ public class MainActivity extends AppCompatActivity implements
                         }
                         if(distFrom(lat, lng, userLocation.getLatitude(), userLocation.getLongitude()) <= metresArea) {
                             try {
+                                String coin = features.get(i).toString();
+                                Pattern p = Pattern.compile(".*\"value\":\"(\\d+\\.\\d+).*");
+                                Matcher m = p.matcher(coin);
+                                double value = 0;
+                                if (m.find()) {
+                                    value = Double.parseDouble(m.group(1));
+                                }
+                                mDatabase.collection("users").document(currentUser.getUid())
+                                        .update("currCoinValue", value);
+                                Intent intent = new Intent(this,QuestionsActivity.class);
+                                startActivity(intent);
                                 updateWallet(features.get(i), rates);
                             } catch (IOException | JSONException e) {
                                 e.printStackTrace();
@@ -649,7 +684,8 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(this,BoostersActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
-
+            Intent intent = new Intent(this,QuestionsActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.log_out) {
             FirebaseAuth.getInstance().signOut();

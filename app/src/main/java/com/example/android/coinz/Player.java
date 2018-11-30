@@ -14,6 +14,9 @@ public class Player {
 
     private boolean boosterBought;
 
+    private int steps;
+    private double currCoinValue;
+
     Player(String email, String password, double goldCoinsAmount, int coinsLeft) {
         this.email = email;
         this.password = password;
@@ -24,6 +27,8 @@ public class Player {
         this.koalaBought = false;
         this.boosterBought = false;
         this.currentAvatar = 1;
+        this.steps = 0;
+        this.currCoinValue = 0;
     }
 
     public String getEmail() {
@@ -60,5 +65,13 @@ public class Player {
 
     public boolean isBoosterBought() {
         return boosterBought;
+    }
+
+    public int getSteps() {
+        return steps;
+    }
+
+    public double getCurrCoinValue() {
+        return currCoinValue;
     }
 }
