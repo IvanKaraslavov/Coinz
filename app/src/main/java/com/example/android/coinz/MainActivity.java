@@ -684,8 +684,6 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(this,BoostersActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
-            Intent intent = new Intent(this,QuestionsActivity.class);
-            startActivity(intent);
 
         } else if (id == R.id.log_out) {
             FirebaseAuth.getInstance().signOut();

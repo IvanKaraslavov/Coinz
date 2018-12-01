@@ -96,10 +96,10 @@ public class QuestionsActivity extends Activity {
                             firstAnswer.setBackgroundResource(R.drawable.correct);
                             firstAnswer.setTextColor(Color.parseColor("#FFFFFF"));
                             double goldCoinsValue = (double) document.get("goldCoinsAmount");
-                            double bonus = goldCoinsValue + (steps / 100) * currCoinValue;
+                            double bonus = goldCoinsValue + (steps / 10) * currCoinValue;
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("goldCoinsAmount", bonus);
-                            Toast.makeText(getApplicationContext(), "Correct answer! Based on your travelled distance and the value of the coin your get " + String.format("%.2f", (steps / 100) * currCoinValue)
+                            Toast.makeText(getApplicationContext(), "Correct answer! Based on your travelled distance and the value of the coin your get " + String.format("%.2f", (steps / 10) * currCoinValue)
                                             + " bonus gold coins!",
                                     Toast.LENGTH_LONG).show();
                             finish();
@@ -118,10 +118,10 @@ public class QuestionsActivity extends Activity {
                             secondAnswer.setBackgroundResource(R.drawable.correct);
                             secondAnswer.setTextColor(Color.parseColor("#FFFFFF"));
                             double goldCoinsValue = (double) document.get("goldCoinsAmount");
-                            double bonus = goldCoinsValue + (steps / 100) * currCoinValue;
+                            double bonus = goldCoinsValue + (steps / 10) * currCoinValue;
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("goldCoinsAmount", bonus);
-                            Toast.makeText(getApplicationContext(), "Correct answer! Based on your travelled distance and the value of the coin your get " + String.format("%.2f", (steps / 100) * currCoinValue)
+                            Toast.makeText(getApplicationContext(), "Correct answer! Based on your travelled distance and the value of the coin your get " + String.format("%.2f", (steps / 10) * currCoinValue)
                                             + " bonus gold coins!",
                                     Toast.LENGTH_LONG).show();
                             finish();
@@ -140,10 +140,10 @@ public class QuestionsActivity extends Activity {
                             thirdAnswer.setBackgroundResource(R.drawable.correct);
                             thirdAnswer.setTextColor(Color.parseColor("#FFFFFF"));
                             double goldCoinsValue = (double) document.get("goldCoinsAmount");
-                            double bonus = goldCoinsValue + (steps / 100) * currCoinValue;
+                            double bonus = goldCoinsValue + (steps / 10) * currCoinValue;
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("goldCoinsAmount", bonus);
-                            Toast.makeText(getApplicationContext(), "Correct answer! Based on your travelled distance and the value of the coin your get " + String.format("%.2f", (steps / 100) * currCoinValue)
+                            Toast.makeText(getApplicationContext(), "Correct answer! Based on your travelled distance and the value of the coin your get " + String.format("%.2f", (steps / 10) * currCoinValue)
                                             + " bonus gold coins!",
                                     Toast.LENGTH_LONG).show();
                             finish();
