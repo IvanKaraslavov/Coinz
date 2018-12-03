@@ -233,6 +233,9 @@ public class GridViewFragmentWallet extends Fragment {
                                     wallet.remove("coins");
                                     JSONObject updateJson = new JSONObject(wallet.toString());
                                     updateJson.put("coins", walletCoins);
+                                    mDatabase.collection("users").document(currentUser.getUid())
+                                            .update("wallet", updateJson.toString());
+                                    MainActivity.wallet = updateJson;
                                     updateFile(updateJson.toString());
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -309,7 +312,10 @@ public class GridViewFragmentWallet extends Fragment {
                                     if (queryDocuments.isEmpty()) {
                                         Toast.makeText(getActivity(), "There is no user with this username!",
                                                 Toast.LENGTH_SHORT).show();
-                                    } else {
+                                    } else if(friendUsername.equals(Objects.requireNonNull(document.get("username")).toString())) {
+                                        Toast.makeText(getActivity(), "You cannot send coins to yourself!",
+                                                Toast.LENGTH_SHORT).show();
+                                    }else {
                                         Toast.makeText(getActivity(), "Coins sent to " + friendUsername + "!",
                                                 Toast.LENGTH_SHORT).show();
 
@@ -417,6 +423,9 @@ public class GridViewFragmentWallet extends Fragment {
                                                 wallet.remove("coins");
                                                 JSONObject updateJson = new JSONObject(wallet.toString());
                                                 updateJson.put("coins", walletCoins);
+                                                mDatabase.collection("users").document(currentUser.getUid())
+                                                        .update("wallet", updateJson.toString());
+                                                MainActivity.wallet = updateJson;
                                                 updateFile(updateJson.toString());
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
@@ -473,5 +482,4 @@ public class GridViewFragmentWallet extends Fragment {
             }
         });
     }
-
 }

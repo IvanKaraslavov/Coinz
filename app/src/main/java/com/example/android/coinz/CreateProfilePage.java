@@ -7,9 +7,17 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
+import java.util.Objects;
 
 
 public class CreateProfilePage extends AppCompatActivity {
@@ -31,9 +39,20 @@ public class CreateProfilePage extends AppCompatActivity {
                 mAuth = FirebaseAuth.getInstance();
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 assert currentUser != null;
-                mDatabase.collection("users").document(currentUser.getUid())
-                        .update("username", username.getText().toString());
-                openActivityMainActivity();
+                CollectionReference users = mDatabase.collection("users");
+                Query usernameQuery = users.whereEqualTo("username", username.getText().toString());
+                Task<QuerySnapshot> usernameSnapshot = usernameQuery.get();
+                usernameSnapshot.addOnCompleteListener(taskSend -> {
+                    List<DocumentSnapshot> queryDocuments = Objects.requireNonNull(usernameSnapshot.getResult()).getDocuments();
+                    if (!queryDocuments.isEmpty()) {
+                        Toast.makeText(CreateProfilePage.this, "There is already a player with this username!",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        mDatabase.collection("users").document(currentUser.getUid())
+                                .update("username", username.getText().toString());
+                        openActivityMainActivity();
+                    }
+                });
             }
         });
     }

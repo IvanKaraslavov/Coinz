@@ -23,6 +23,9 @@ public class Player {
     private boolean newNotifications;
     private List<String> notifications;
 
+    private String wallet;
+    private String map;
+
     Player(String email, String password, double goldCoinsAmount, int coinsLeft) {
         this.email = email;
         this.password = password;
@@ -37,6 +40,8 @@ public class Player {
         this.currCoinValue = 0;
         this.notifications = new ArrayList<>();
         this.newNotifications = false;
+        this.wallet = "";
+        this.map = "";
     }
 
     public String getEmail() {
@@ -89,5 +94,13 @@ public class Player {
 
     public boolean isNewNotifications() {
         return newNotifications;
+    }
+
+    public String getWallet() {
+        return wallet;
+    }
+
+    public String getMap() {
+        return map;
     }
 }

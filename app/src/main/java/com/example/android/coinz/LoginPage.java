@@ -15,7 +15,12 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Objects;
 
 public class LoginPage extends AppCompatActivity {
@@ -26,6 +31,7 @@ public class LoginPage extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
+    private String tag = "LoginPage";
 
     private TextView password;
     private TextView email;
@@ -84,6 +90,26 @@ public class LoginPage extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("TESTING", "signInWithEmail:success");
+                            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+                            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                            DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+                            docRef.get().addOnCompleteListener(taskDB -> {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = taskDB.getResult();
+                                    if (Objects.requireNonNull(document).exists()) {
+                                        Log.d(tag, "DocumentSnapshot data: " + document.getData());
+                                        String wallet = (String) document.get("wallet");
+                                        String map = (String) document.get("map");
+                                        updateFile(map, "coinzmap.geojson");
+                                        updateFile(wallet, "walletCoins.geojson");
+                                    } else {
+                                        Log.d(tag, "No such document");
+                                    }
+                                } else {
+                                    Log.d(tag, "get failed with ", task.getException());
+                                }
+                            });
                             openMap();
                         } else {
                             // If sign in fails, display a message to the user.
@@ -102,6 +128,18 @@ public class LoginPage extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
             openMap();
+        }
+    }
+
+    private void updateFile(String result, String fileName) {
+        // Add the geojson text into a file in internal storage
+        try {
+            FileOutputStream file = getApplicationContext().openFileOutput(fileName, MODE_PRIVATE);
+            OutputStreamWriter outputWriter=new OutputStreamWriter(file);
+            outputWriter.write(result);
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

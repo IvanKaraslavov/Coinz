@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <item android:title="Profile &amp; Shop">
+    <menu>
         <item
             android:id="@+id/bank_icon"
             android:icon="@drawable/bank_icon"
@@ -17,17 +18,18 @@
             android:icon="@drawable/shop_icon"
             android:title="Shop" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
-    </group>
+            android:id="@+id/boosters_icon"
+            android:icon="@drawable/boosters_icon"
+            android:title="Boosters" />
+    </menu>
+    </item>
 
-    <item android:title="Communicate">
+    <item android:title="Notifications &amp; Log Out">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:id="@+id/notifications_icon"
+                android:icon="@drawable/notifications_icon"
+                android:title="Notifications" />
             <item
                 android:id="@+id/log_out"
                 android:icon="@drawable/log_out_icon"

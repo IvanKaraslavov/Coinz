@@ -1,5 +1,8 @@
 package com.example.android.coinz;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -42,6 +45,15 @@ public class DownloadCompleteRunner {
             wallet.put("coins", new JSONArray());
             outputWriterWallet.write(wallet.toString());
             outputWriterWallet.close();
+
+            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            assert currentUser != null;
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("map", result);
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("wallet", wallet.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

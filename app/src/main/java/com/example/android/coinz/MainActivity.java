@@ -21,7 +21,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +57,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements
         MainActivity.fileDownloaded = fileDownloaded;
     }
 
+    @SuppressLint("LogNotTimber")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,8 +157,30 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadData();
-        Button mapButton = findViewById(R.id.button);
+        ImageButton mapButton = findViewById(R.id.menu_button);
         mapButton.setOnClickListener(view -> {
+            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (Objects.requireNonNull(document).exists()) {
+                        Log.d(tag, "DocumentSnapshot data: " + document.getData());
+                        boolean newNotifications = (boolean) document.get("newNotifications");
+                        if(!newNotifications) {
+                            navigationView.getMenu().getItem(1).getSubMenu().getItem(0).setIcon(R.drawable.notifications_icon);
+                        } else {
+                            navigationView.getMenu().getItem(1).getSubMenu().getItem(0).setIconTintMode(null).setIcon(R.drawable.notifications_icon_true);
+                        }
+                    } else {
+                        Log.d(tag, "No such document");
+                    }
+                } else {
+                    Log.d(tag, "get failed with ", task.getException());
+                }
+            });
             loadData();
             try {
                 loadWallet();
@@ -388,14 +412,6 @@ public class MainActivity extends AppCompatActivity implements
                         long steps = (long) document.get("steps");
                         mDatabase.collection("users").document(currentUser.getUid())
                                 .update("steps", steps+1);
-                        boolean newNotifications = (boolean) document.get("newNotifications");
-                        if(!newNotifications) {
-                            ImageView bell = findViewById(R.id.bell_icon);
-                            bell.setVisibility(ImageView.GONE);
-                        } else {
-                            ImageView bell = findViewById(R.id.bell_icon);
-                            bell.setVisibility(ImageView.VISIBLE);
-                        }
                         originLocation = location;
                         setCameraPosition(location);
                         try {
@@ -489,6 +505,7 @@ public class MainActivity extends AppCompatActivity implements
                                 }
                                 mDatabase.collection("users").document(currentUser.getUid())
                                         .update("currCoinValue", value);
+                                saveInDB();
                                 Intent intent = new Intent(this,QuestionsActivity.class);
                                 startActivity(intent);
                                 updateWallet(features.get(i), rates);
@@ -630,6 +647,9 @@ public class MainActivity extends AppCompatActivity implements
         // We need an Editor object to make preference changes.
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("lastDownloadDate", downloadDate);
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        assert currentUser != null;
         // Apply the edits!
         editor.apply();
     }
@@ -638,6 +658,31 @@ public class MainActivity extends AppCompatActivity implements
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    private void saveInDB() {
+        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        assert currentUser != null;
+        FileInputStream walletFile = null;
+        FileInputStream mapFile = null;
+        try {
+            walletFile = openFileInput("walletCoins.geojson");
+            mapFile = openFileInput("coinzmap.geojson");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            JSONObject wallet = new JSONObject(readStream(walletFile));
+            JSONObject map = new JSONObject(readStream(mapFile));
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("wallet", wallet.toString());
+            mDatabase.collection("users").document(currentUser.getUid())
+                    .update("map", map.toString());
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -674,8 +719,12 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("LogNotTimber")
     @SuppressWarnings("StatementWithEmptyBody")
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -688,13 +737,32 @@ public class MainActivity extends AppCompatActivity implements
         } else if (id == R.id.shop_icon) {
             Intent intent = new Intent(this,AvatarsActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.boosters_icon) {
             Intent intent = new Intent(this,BoostersActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.notifications_icon) {
             Intent intent = new Intent(this,NotificationsActivity.class);
             startActivity(intent);
         } else if (id == R.id.log_out) {
+            FileInputStream walletFile = null;
+            FileInputStream mapFile = null;
+            try {
+                walletFile = openFileInput("walletCoins.geojson");
+                mapFile = openFileInput("coinzmap.geojson");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            try {
+                JSONObject wallet = new JSONObject(readStream(walletFile));
+                JSONObject map = new JSONObject(readStream(mapFile));
+                assert currentUser != null;
+                mDatabase.collection("users").document(currentUser.getUid())
+                        .update("wallet", wallet.toString());
+                mDatabase.collection("users").document(currentUser.getUid())
+                        .update("map", map.toString());
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
             FirebaseAuth.getInstance().signOut();
             openLoginPage();
         }
