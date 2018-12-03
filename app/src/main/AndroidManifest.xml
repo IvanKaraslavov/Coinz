@@ -43,12 +43,15 @@
         <activity
             android:name=".AvatarsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".BoostersActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
+        <activity
+            android:name=".BoostersActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".QuestionsActivity"
             android:theme="@android:style/Theme.Holo.Dialog.NoActionBar" />
+        <activity
+            android:name=".NotificationsActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

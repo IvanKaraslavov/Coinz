@@ -388,6 +388,14 @@ public class MainActivity extends AppCompatActivity implements
                         long steps = (long) document.get("steps");
                         mDatabase.collection("users").document(currentUser.getUid())
                                 .update("steps", steps+1);
+                        boolean newNotifications = (boolean) document.get("newNotifications");
+                        if(!newNotifications) {
+                            ImageView bell = findViewById(R.id.bell_icon);
+                            bell.setVisibility(ImageView.GONE);
+                        } else {
+                            ImageView bell = findViewById(R.id.bell_icon);
+                            bell.setVisibility(ImageView.VISIBLE);
+                        }
                         originLocation = location;
                         setCameraPosition(location);
                         try {
@@ -684,7 +692,8 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(this,BoostersActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
-
+            Intent intent = new Intent(this,NotificationsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.log_out) {
             FirebaseAuth.getInstance().signOut();
             openLoginPage();

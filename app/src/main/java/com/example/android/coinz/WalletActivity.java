@@ -58,7 +58,10 @@ public class WalletActivity extends AppCompatActivity {
                 if (Objects.requireNonNull(document).exists()) {
                     Log.d(tag, "DocumentSnapshot data: " + document.getData());
                     TextView coinsNumber= findViewById(R.id.coins_number);
-                    coinsNumber.setText( Objects.requireNonNull(document.get("coinsLeft")).toString());
+                    String str = Objects.requireNonNull(document.get("coinsLeft")).toString();
+                    double coinsLeftDouble = Double.parseDouble(str);
+                    int coinsLeft = (int) Math.floor(coinsLeftDouble);
+                    coinsNumber.setText(String.valueOf(coinsLeft));
                 } else {
                     Log.d(tag, "No such document");
                 }

@@ -18,4 +18,10 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="SeachLayout" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorControlNormal">#BFEFE6</item>
+        <item name="colorControlActivated">#BFEFE6</item>
+        <item name="colorControlHighlight">#BFEFE6</item>
+    </style>
+
 </resources>

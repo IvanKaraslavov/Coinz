@@ -30,6 +30,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Button" />
+
+        <ImageView
+            android:id="@+id/bell_icon"
+            android:layout_width="100dp"
+            android:layout_height="81dp"
+            android:layout_gravity="right"
+            android:layout_marginEnd="0dp"
+            android:contentDescription="bell_icon"
+            android:visibility="gone"
+            app:srcCompat="@drawable/bell_icon"
+            tools:ignore="HardcodedText,RtlHardcoded" />
     </com.mapbox.mapboxsdk.maps.MapView>
 
     <android.support.design.widget.NavigationView

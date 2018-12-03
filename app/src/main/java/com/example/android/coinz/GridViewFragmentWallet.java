@@ -136,7 +136,8 @@ public class GridViewFragmentWallet extends Fragment {
                     if (Objects.requireNonNull(document).exists()) {
                         Log.d("GridView", "DocumentSnapshot data: " + document.getData());
                         String str = Objects.requireNonNull(document.get("coinsLeft")).toString();
-                        int coinsLeft = Integer.parseInt(str);
+                        double coinsLeftDouble = Double.parseDouble(str);
+                        int coinsLeft = (int) Math.floor(coinsLeftDouble);
                         if (coinsLeft >= selectedRows.size()) {
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("coinsLeft", (coinsLeft - selectedRows.size()));
@@ -288,7 +289,7 @@ public class GridViewFragmentWallet extends Fragment {
 //                        startActivity(intent);
                             Dialog dialog = new Dialog(Objects.requireNonNull(getActivity()));
                             dialog.setContentView(R.layout.activity_send_coins);
-                            Objects.requireNonNull(dialog.getWindow()).setLayout(1000, 1000);
+                            Objects.requireNonNull(dialog.getWindow()).setLayout(1100, 500);
                             dialog.show();
 
                             ImageView exit = dialog.findViewById(R.id.exit_send_coins_popup);
@@ -372,6 +373,19 @@ public class GridViewFragmentWallet extends Fragment {
                                                                     double goldCoinsValue = Double.parseDouble(Objects.requireNonNull(document_coins.get("goldCoinsAmount")).toString());
                                                                     mDatabase.collection("users").document(Objects.requireNonNull(String.valueOf(queryDocuments.get(0).getId())))
                                                                             .update("goldCoinsAmount", goldCoinsValue + finalValue * finalCurrencyRate);
+                                                                    List<String> notificationsCurrUser = (List<String>) document_coins.get("notifications");
+                                                                    List<String> notificationsReceiver = (List<String>) queryDocuments.get(0).get("notifications");
+                                                                    mDatabase.collection("users").document(Objects.requireNonNull(String.valueOf(queryDocuments.get(0).getId())))
+                                                                            .update("newNotifications", true);
+                                                                    @SuppressLint("DefaultLocale") String coinsValue = String.format("%.2f", finalValue * finalCurrencyRate);
+                                                                    String notificationCurrUser = "You sent " + friendUsername + " " + coinsValue + " gold coins as a gift!";
+                                                                    String notificationReceiver =  document_coins.get("username") + " sent you " + coinsValue + " gold coins as a gift!";
+                                                                    Objects.requireNonNull(notificationsCurrUser).add(notificationCurrUser);
+                                                                    Objects.requireNonNull(notificationsReceiver).add(notificationReceiver);
+                                                                    mDatabase.collection("users").document(document_coins.getId())
+                                                                            .update("notifications", notificationsCurrUser);
+                                                                    mDatabase.collection("users").document(Objects.requireNonNull(String.valueOf(queryDocuments.get(0).getId())))
+                                                                            .update("notifications", notificationsReceiver);
                                                                 } else {
                                                                     Log.d("GridView", "No such document");
                                                                 }

@@ -1,5 +1,8 @@
 package com.example.android.coinz;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Player {
     private String email;
     private String password;
@@ -17,6 +20,9 @@ public class Player {
     private int steps;
     private double currCoinValue;
 
+    private boolean newNotifications;
+    private List<String> notifications;
+
     Player(String email, String password, double goldCoinsAmount, int coinsLeft) {
         this.email = email;
         this.password = password;
@@ -29,6 +35,8 @@ public class Player {
         this.currentAvatar = 1;
         this.steps = 0;
         this.currCoinValue = 0;
+        this.notifications = new ArrayList<>();
+        this.newNotifications = false;
     }
 
     public String getEmail() {
@@ -73,5 +81,13 @@ public class Player {
 
     public double getCurrCoinValue() {
         return currCoinValue;
+    }
+
+    public List<String> getNotifications() {
+        return notifications;
+    }
+
+    public boolean isNewNotifications() {
+        return newNotifications;
     }
 }
