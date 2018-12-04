@@ -50,6 +50,7 @@ public class DownloadCompleteRunner {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseUser currentUser = mAuth.getCurrentUser();
             assert currentUser != null;
+            // Update the database with the current map and wallet
             mDatabase.collection("users").document(currentUser.getUid())
                     .update("map", result);
             mDatabase.collection("users").document(currentUser.getUid())

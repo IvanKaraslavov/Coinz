@@ -35,6 +35,8 @@ public class BankActivity extends Activity {
         TextView goldCoins = findViewById(R.id.gold_coins);
         goldCoins.setTypeface(typeface);
 
+        //Resizing the activity
+
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
@@ -54,6 +56,8 @@ public class BankActivity extends Activity {
         ImageView exit = findViewById(R.id.exit_bank_popup);
         exit.setOnClickListener(view -> finish());
     }
+
+    //Loading the amount of gold coins from the database
 
     @SuppressLint({"LogNotTimber", "SetTextI18n", "DefaultLocale"})
     private void loadData() {

@@ -118,7 +118,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@android:drawable/screen_background_dark_transparent" />
+        app:srcCompat="@android:drawable/screen_background_dark_transparent"
+        tools:ignore="ContentDescription" />
 
     <android.support.constraint.Barrier
         android:id="@+id/barrier"

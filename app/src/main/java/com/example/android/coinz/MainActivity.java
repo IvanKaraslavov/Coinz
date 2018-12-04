@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements
     private PermissionsManager permissionsManager;
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
-    private Location originLocation;
 
     static List<MarkerOptions> markers;
     static JSONObject wallet;
@@ -157,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadData();
+        // Open the menu
         ImageButton mapButton = findViewById(R.id.menu_button);
         mapButton.setOnClickListener(view -> {
             FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
@@ -206,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements
             enableLocation();
             IconFactory iconFactory = IconFactory.getInstance(MainActivity.this);
 
+            // Display the coins
             BitmapDrawable dolr = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.dolr, null);
             assert dolr != null;
             Bitmap bitmap = dolr.getBitmap();
@@ -232,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements
 
         }
 
+        // Update the date
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         LocalDateTime now = LocalDateTime.now();
         String todayDate = dtf.format(now);
@@ -279,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements
     }
     @SuppressLint({"LogNotTimber", "SetTextI18n"})
     private void loadData() {
+        // Update the avatar in the menu
         FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -352,7 +355,6 @@ public class MainActivity extends AppCompatActivity implements
         locationEngine.activate();
         Location lastLocation = locationEngine.getLastLocation();
         if (lastLocation != null) {
-            originLocation = lastLocation;
             setCameraPosition(lastLocation);
         } else {
             locationEngine.addLocationEngineListener(this);
@@ -412,7 +414,6 @@ public class MainActivity extends AppCompatActivity implements
                         long steps = (long) document.get("steps");
                         mDatabase.collection("users").document(currentUser.getUid())
                                 .update("steps", steps+1);
-                        originLocation = location;
                         setCameraPosition(location);
                         try {
                             FileInputStream fis = openFileInput("coinzmap.geojson");
@@ -434,6 +435,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @SuppressLint("LogNotTimber")
     private void getCoins(JSONObject jsonObject, Location userLocation) {
+        //Update the map and the wallet when a coin is taken
         FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -569,7 +571,7 @@ public class MainActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
     }
-
+    //Find the distance between the user and a coin in metres
     public static double distFrom(double lat1, double lng1, double lat2, double lng2) {
         double earthRadius = 6371000; //meters
         double dLat = Math.toRadians(lat2-lat1);
@@ -598,6 +600,8 @@ public class MainActivity extends AppCompatActivity implements
             enableLocation();
         } else {
             // Open a dialogue with the user
+            Toast.makeText(MainActivity.this, "We will use your location only when you are playing the game in order to know if you are close enough to the coins!",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

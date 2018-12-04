@@ -17,6 +17,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,12 +48,20 @@ public class NotificationsActivity extends AppCompatActivity {
                 DocumentSnapshot document = task.getResult();
                 if (Objects.requireNonNull(document).exists()) {
                     Log.d(tag, "DocumentSnapshot data: " + document.getData());
+                    // Display the notifications
                     mDatabase.collection("users").document(document.getId())
                             .update("newNotifications", false);
                     listView = findViewById(R.id.notifications_list);
-                    List<String> notifications = (List<String>) document.get("notifications");
+                    String[] notificationsArray = Objects.requireNonNull(document.get("notifications")).toString()
+                            .replaceAll("\\[", "").replaceAll("]", "").split(", ");
+                    List<String> notifications = new ArrayList<>();
+                    for (String notification : notificationsArray) {
+                        if (!notification.isEmpty()) {
+                            notifications.add(notification);
+                        }
+                    }
                     List<String> reversedNotifications = Lists.reverse(notifications);
-                    adapter = new ArrayAdapter(NotificationsActivity.this, R.layout.list_white_text, reversedNotifications);
+                    adapter = new ArrayAdapter<>(NotificationsActivity.this, R.layout.list_white_text, reversedNotifications);
                     listView.setAdapter(adapter);
                 } else {
                     Log.d(tag, "No such document");

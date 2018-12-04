@@ -60,6 +60,8 @@ public class SignUpPage extends AppCompatActivity {
         finish();
     }
 
+    //Create an account
+
     @SuppressLint("LogNotTimber")
     private void signUp(String email, String password) {
         if(email.isEmpty()) {

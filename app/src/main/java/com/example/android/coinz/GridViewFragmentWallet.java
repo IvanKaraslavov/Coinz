@@ -288,8 +288,6 @@ public class GridViewFragmentWallet extends Fragment {
                         DocumentSnapshot document = task.getResult();
                         if (Objects.requireNonNull(document).exists()) {
                             Log.d("GridView", "DocumentSnapshot data: " + document.getData());
-//                        Intent intent = new Intent(getActivity(),SendCoinsActivity.class);
-//                        startActivity(intent);
                             Dialog dialog = new Dialog(Objects.requireNonNull(getActivity()));
                             dialog.setContentView(R.layout.activity_send_coins);
                             Objects.requireNonNull(dialog.getWindow()).setLayout(1100, 500);
@@ -379,19 +377,34 @@ public class GridViewFragmentWallet extends Fragment {
                                                                     double goldCoinsValue = Double.parseDouble(Objects.requireNonNull(document_coins.get("goldCoinsAmount")).toString());
                                                                     mDatabase.collection("users").document(Objects.requireNonNull(String.valueOf(queryDocuments.get(0).getId())))
                                                                             .update("goldCoinsAmount", goldCoinsValue + finalValue * finalCurrencyRate);
-                                                                    List<String> notificationsCurrUser = (List<String>) document_coins.get("notifications");
-                                                                    List<String> notificationsReceiver = (List<String>) queryDocuments.get(0).get("notifications");
+                                                                    // Create and add notifications
+                                                                    String[] notificationsCurrUser = Objects.requireNonNull(document_coins.get("notifications")).toString()
+                                                                            .replaceAll("\\[", "").replaceAll("]", "").split(", ");
+                                                                    List<String> notificationsCurrUserList = new ArrayList<>();
+                                                                    String[] notificationsReceiver = Objects.requireNonNull(queryDocuments.get(0).get("notifications")).toString()
+                                                                            .replaceAll("\\[", "").replaceAll("]", "").split(", ");
+                                                                    List<String> notificationsReceiverList = new ArrayList<>();
+                                                                    for (String aNotificationsCurrUser : notificationsCurrUser) {
+                                                                        if (!aNotificationsCurrUser.isEmpty()) {
+                                                                            notificationsCurrUserList.add(aNotificationsCurrUser);
+                                                                        }
+                                                                    }
+                                                                    for (String aNotificationsReceiver : notificationsReceiver) {
+                                                                        if (!aNotificationsReceiver.isEmpty()) {
+                                                                            notificationsReceiverList.add(aNotificationsReceiver);
+                                                                        }
+                                                                    }
                                                                     mDatabase.collection("users").document(Objects.requireNonNull(String.valueOf(queryDocuments.get(0).getId())))
                                                                             .update("newNotifications", true);
                                                                     @SuppressLint("DefaultLocale") String coinsValue = String.format("%.2f", finalValue * finalCurrencyRate);
                                                                     String notificationCurrUser = "You sent " + friendUsername + " " + coinsValue + " gold coins as a gift!";
                                                                     String notificationReceiver =  document_coins.get("username") + " sent you " + coinsValue + " gold coins as a gift!";
-                                                                    Objects.requireNonNull(notificationsCurrUser).add(notificationCurrUser);
-                                                                    Objects.requireNonNull(notificationsReceiver).add(notificationReceiver);
+                                                                    notificationsCurrUserList.add(notificationCurrUser);
+                                                                    notificationsReceiverList.add(notificationReceiver);
                                                                     mDatabase.collection("users").document(document_coins.getId())
-                                                                            .update("notifications", notificationsCurrUser);
+                                                                            .update("notifications", notificationsCurrUserList);
                                                                     mDatabase.collection("users").document(Objects.requireNonNull(String.valueOf(queryDocuments.get(0).getId())))
-                                                                            .update("notifications", notificationsReceiver);
+                                                                            .update("notifications", notificationsReceiverList);
                                                                 } else {
                                                                     Log.d("GridView", "No such document");
                                                                 }
@@ -461,7 +474,7 @@ public class GridViewFragmentWallet extends Fragment {
         }
     }
 
-    @SuppressLint("LogNotTimber")
+    @SuppressLint({"LogNotTimber", "SetTextI18n"})
     private void updateLayout() {
         FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -473,7 +486,10 @@ public class GridViewFragmentWallet extends Fragment {
                 if (Objects.requireNonNull(document).exists()) {
                     Log.d(tag, "DocumentSnapshot data: " + document.getData());
                     TextView coinsNumber = Objects.requireNonNull(getActivity()).findViewById(R.id.coins_number);
-                    coinsNumber.setText(Objects.requireNonNull(document.get("coinsLeft")).toString());
+                    String str = Objects.requireNonNull(document.get("coinsLeft")).toString();
+                    double coinsLeftDouble = Double.parseDouble(str);
+                    int coinsLeft = (int) Math.floor(coinsLeftDouble);
+                    coinsNumber.setText(Objects.requireNonNull(coinsLeft).toString());
                 } else {
                     Log.d(tag, "No such document");
                 }

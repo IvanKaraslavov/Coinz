@@ -21,6 +21,7 @@ import java.util.Objects;
 public class AvatarsActivity extends AppCompatActivity {
 
     private String tag = "AvatarsActivity";
+    private final int priceOfAvatars = 7000;
     @SuppressLint("LogNotTimber")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,8 @@ public class AvatarsActivity extends AppCompatActivity {
 
         ImageView exit = findViewById(R.id.exit_shop);
         exit.setOnClickListener(view -> finish());
+
+        //Displaying the avatars from the database and providing buy functionality
 
         FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -68,7 +71,7 @@ public class AvatarsActivity extends AppCompatActivity {
                                     .update("currentAvatar",  2);
                             Toast.makeText(AvatarsActivity.this, "The avatar is changed.",
                                     Toast.LENGTH_LONG).show();
-                        } else if(goldCoins < 7000) {
+                        } else if(goldCoins < priceOfAvatars) {
                             Toast.makeText(AvatarsActivity.this, "Not enough gold coins.",
                                     Toast.LENGTH_LONG).show();
                         } else {
@@ -78,7 +81,7 @@ public class AvatarsActivity extends AppCompatActivity {
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("dogBought", true);
                             mDatabase.collection("users").document(currentUser.getUid())
-                                    .update("goldCoinsAmount",  goldCoins - 7000);
+                                    .update("goldCoinsAmount",  goldCoins - priceOfAvatars);
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("currentAvatar",  2);
                         }
@@ -97,7 +100,7 @@ public class AvatarsActivity extends AppCompatActivity {
                                     .update("currentAvatar",  3);
                             Toast.makeText(AvatarsActivity.this, "The avatar is changed.",
                                     Toast.LENGTH_LONG).show();
-                        } else if(goldCoins < 7000) {
+                        } else if(goldCoins < priceOfAvatars) {
                             Toast.makeText(AvatarsActivity.this, "Not enough gold coins.",
                                     Toast.LENGTH_LONG).show();
                         } else {
@@ -107,7 +110,7 @@ public class AvatarsActivity extends AppCompatActivity {
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("catBought", true);
                             mDatabase.collection("users").document(currentUser.getUid())
-                                    .update("goldCoinsAmount",  goldCoins - 7000);
+                                    .update("goldCoinsAmount",  goldCoins - priceOfAvatars);
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("currentAvatar",  3);
                         }
@@ -125,7 +128,7 @@ public class AvatarsActivity extends AppCompatActivity {
                                     .update("currentAvatar", 4);
                             Toast.makeText(AvatarsActivity.this, "The avatar is changed.",
                                     Toast.LENGTH_LONG).show();
-                        } else if(goldCoins < 7000) {
+                        } else if(goldCoins < priceOfAvatars) {
                             Toast.makeText(AvatarsActivity.this, "Not enough gold coins.",
                                     Toast.LENGTH_LONG).show();
                         } else {
@@ -135,7 +138,7 @@ public class AvatarsActivity extends AppCompatActivity {
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("koalaBought", true);
                             mDatabase.collection("users").document(currentUser.getUid())
-                                    .update("goldCoinsAmount",  goldCoins - 7000);
+                                    .update("goldCoinsAmount",  goldCoins - priceOfAvatars);
                             mDatabase.collection("users").document(currentUser.getUid())
                                     .update("currentAvatar", 4);
                         }

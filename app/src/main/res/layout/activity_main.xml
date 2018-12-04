@@ -29,7 +29,9 @@
             android:layout_width="64dp"
             android:layout_height="66dp"
             android:background="@null"
-            app:srcCompat="@drawable/menu_icon" />
+            app:srcCompat="@drawable/menu_icon"
+            android:contentDescription="menu_icon"
+            tools:ignore="HardcodedText" />
     </com.mapbox.mapboxsdk.maps.MapView>
 
     <android.support.design.widget.NavigationView

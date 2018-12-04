@@ -26,6 +26,7 @@ public class Question {
         return answers;
     }
 
+    // Create questions
     public static List<Question> getQuestions() {
         List<Question> questions = new ArrayList<>();
         questions.add(new Question("Edinburgh Zoo is home to the only giant pandas in the UK. The female is called Tian Tian, but what is the name of the male?",

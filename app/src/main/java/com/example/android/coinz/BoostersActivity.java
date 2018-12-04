@@ -21,6 +21,7 @@ import java.util.Objects;
 public class BoostersActivity extends AppCompatActivity {
 
     private String tag = "BoostersActivity";
+    private final int priceOfBooster = 3000;
     @SuppressLint("LogNotTimber")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,8 @@ public class BoostersActivity extends AppCompatActivity {
 
         ImageView exit = findViewById(R.id.exit_booster);
         exit.setOnClickListener(view -> finish());
+
+        //Displaying the booster from the database and providing buy functionality
 
         FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -55,7 +58,7 @@ public class BoostersActivity extends AppCompatActivity {
                             Toast.makeText(BoostersActivity.this, "You already purchased the booster today.",
                                     Toast.LENGTH_LONG).show();
                         } else {
-                            if(goldCoins < 3000) {
+                            if(goldCoins < priceOfBooster) {
                                 Toast.makeText(BoostersActivity.this, "Not enough gold coins.",
                                         Toast.LENGTH_LONG).show();
                             } else {
@@ -64,7 +67,7 @@ public class BoostersActivity extends AppCompatActivity {
                                 mDatabase.collection("users").document(currentUser.getUid())
                                         .update("boosterBought", true);
                                 mDatabase.collection("users").document(currentUser.getUid())
-                                        .update("goldCoinsAmount",  goldCoins - 3000);
+                                        .update("goldCoinsAmount",  goldCoins - priceOfBooster);
                             }
                         }
                     });

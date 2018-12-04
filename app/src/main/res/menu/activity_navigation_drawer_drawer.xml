@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <item android:title="Profile &amp; Shop">
+    <item android:title="Profile &amp; Shop"
+        tools:ignore="HardcodedText">
     <menu>
         <item
             android:id="@+id/bank_icon"
@@ -24,7 +25,8 @@
     </menu>
     </item>
 
-    <item android:title="Notifications &amp; Log Out">
+    <item android:title="Notifications &amp; Log Out"
+        tools:ignore="HardcodedText">
         <menu>
             <item
                 android:id="@+id/notifications_icon"

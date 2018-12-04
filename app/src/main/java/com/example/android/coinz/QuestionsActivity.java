@@ -30,13 +30,7 @@ public class QuestionsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questions);
 
-//        Typeface typefaceBold = Typeface.createFromAsset(getAssets(), "fonts/Oswald-Bold.ttf");
-//        Typeface typefaceLight = Typeface.createFromAsset(getAssets(), "fonts/Oswald-Light.ttf");
-//        TextView goldCoinsText = findViewById(R.id.gold_coinz_text);
-//        goldCoinsText.setTypeface(typeface);
-//
-//        TextView goldCoins = findViewById(R.id.gold_coins);
-//        goldCoins.setTypeface(typeface);
+        //Resizing the activity
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -58,27 +52,26 @@ public class QuestionsActivity extends Activity {
         Question question = questions.get(number);
         TextView title = findViewById(R.id.question_title);
         title.setText(question.getTitle());
-        //title.setTypeface(typefaceBold);
 
         TextView firstAnswer = findViewById(R.id.first_answer);
         firstAnswer.setText(question.getAnswers().get(0));
         if(number == 2) {
             firstAnswer.setTextSize(20);
         }
-        //firstAnswer.setTypeface(typefaceLight);
 
         TextView secondAnswer = findViewById(R.id.second_answer);
         secondAnswer.setText(question.getAnswers().get(1));
         if(number == 2) {
             secondAnswer.setTextSize(20);
         }
-        //secondAnswer.setTypeface(typefaceLight);
 
         TextView thirdAnswer = findViewById(R.id.third_answer);
         thirdAnswer.setText(question.getAnswers().get(2));
         if(number == 2) {
             thirdAnswer.setTextSize(20);
         }
+
+        //Update the amount of gold coins if the answer is correct
 
         FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -163,10 +156,6 @@ public class QuestionsActivity extends Activity {
                 Log.d(tag, "get failed with ", task.getException());
             }
         });
-        //thirdAnswer.setTypeface(typefaceLight);
-
-
-        //loadData();
 
         ImageView exit = findViewById(R.id.exit_questions_popup);
         exit.setOnClickListener(view -> finish());
