@@ -103,6 +103,7 @@ public class LoginPage extends AppCompatActivity {
                                         String map = (String) document.get("map");
                                         updateFile(map, "coinzmap.geojson");
                                         updateFile(wallet, "walletCoins.geojson");
+                                        openMap();
                                     } else {
                                         Log.d(tag, "No such document");
                                     }
@@ -110,7 +111,6 @@ public class LoginPage extends AppCompatActivity {
                                     Log.d(tag, "get failed with ", task.getException());
                                 }
                             });
-                            openMap();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("TESTING", "signInWithEmail:failure", task.getException());

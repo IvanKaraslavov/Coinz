@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements
     static MapboxMap map;
 
     private PermissionsManager permissionsManager;
-    private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
 
     static List<MarkerOptions> markers;
@@ -370,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements
             if (map == null) {
                 Log.d(tag, "map is null");
             } else {
-                locationLayerPlugin = new LocationLayerPlugin(mapView,
+                LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mapView,
                         map, locationEngine);
                 locationLayerPlugin.setLocationLayerEnabled(true);
                 locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
@@ -398,39 +397,41 @@ public class MainActivity extends AppCompatActivity implements
     @SuppressLint("LogNotTimber")
     @Override
     public void onLocationChanged(Location location) {
-        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
-        docRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (Objects.requireNonNull(document).exists()) {
-                    Log.d(tag, "DocumentSnapshot data: " + document.getData());
-                    if (location == null) {
-                        Log.d(tag, "[onLocationChanged] location is null");
-                    } else {
-                        Log.d(tag, "[onLocationChanged] location is not null");
-                        long steps = (long) document.get("steps");
-                        mDatabase.collection("users").document(currentUser.getUid())
-                                .update("steps", steps+1);
-                        setCameraPosition(location);
-                        try {
-                            FileInputStream fis = openFileInput("coinzmap.geojson");
-                            JSONObject jsonObject = new JSONObject(readStream(fis));
-                            getCoins(jsonObject, location);
-                            loadWallet();
-                        } catch (IOException | JSONException e) {
-                            e.printStackTrace();
+            FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            if(currentUser != null) {
+            DocumentReference docRef = mDatabase.collection("users").document(Objects.requireNonNull(currentUser).getUid());
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (Objects.requireNonNull(document).exists()) {
+                        Log.d(tag, "DocumentSnapshot data: " + document.getData());
+                        if (location == null) {
+                            Log.d(tag, "[onLocationChanged] location is null");
+                        } else {
+                            Log.d(tag, "[onLocationChanged] location is not null");
+                            long steps = (long) document.get("steps");
+                            mDatabase.collection("users").document(currentUser.getUid())
+                                    .update("steps", steps + 1);
+                            setCameraPosition(location);
+                            try {
+                                FileInputStream fis = openFileInput("coinzmap.geojson");
+                                JSONObject jsonObject = new JSONObject(readStream(fis));
+                                getCoins(jsonObject, location);
+                                loadWallet();
+                            } catch (IOException | JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
+                    } else {
+                        Log.d(tag, "No such document");
                     }
                 } else {
-                    Log.d(tag, "No such document");
+                    Log.d(tag, "get failed with ", task.getException());
                 }
-            } else {
-                Log.d(tag, "get failed with ", task.getException());
+            });
             }
-        });
     }
 
     @SuppressLint("LogNotTimber")
@@ -616,8 +617,11 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         mapView.onStart();
-        if (locationLayerPlugin != null) {
-            locationLayerPlugin.onStart();
+        if(locationEngine != null){
+            try {
+                locationEngine.requestLocationUpdates();
+            } catch(SecurityException ignored) {}
+            locationEngine.addLocationEngineListener(this);
         }
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         // use ”” as the default value (this might be the first time the app is run)
@@ -642,8 +646,9 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         mapView.onStop();
-        if (locationLayerPlugin != null) {
-            locationLayerPlugin.onStart();
+        if(locationEngine != null){
+            locationEngine.removeLocationEngineListener(this);
+            locationEngine.removeLocationUpdates();
         }
         Log.d(tag,"[onStop] Storing lastDownloadDate of " + downloadDate);
         // All objects are from android.context.Context
