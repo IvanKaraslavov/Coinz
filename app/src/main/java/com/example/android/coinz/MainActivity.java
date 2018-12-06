@@ -236,8 +236,9 @@ public class MainActivity extends AppCompatActivity implements
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         LocalDateTime now = LocalDateTime.now();
         String todayDate = dtf.format(now);
-        if (!todayDate.equals(downloadDate)) {
+        if (!todayDate.equals(downloadDate) || CreateProfilePage.firstTimeUser ) {
             //Download the GeoJSON file
+            fileDownloaded = false;
             downloadDate = todayDate;
             setFileDownloaded(false);
             DownloadFileTask task = new DownloadFileTask();

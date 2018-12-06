@@ -16,17 +16,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
-import static com.example.android.coinz.MainActivity.setFileDownloaded;
 
 
 public class CreateProfilePage extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    static boolean firstTimeUser = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +53,7 @@ public class CreateProfilePage extends AppCompatActivity {
                     } else {
                         mDatabase.collection("users").document(currentUser.getUid())
                                 .update("username", username.getText().toString());
-                        setFileDownloaded(false);
-                        DownloadFileTask task = new DownloadFileTask();
-                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-                        LocalDateTime now = LocalDateTime.now();
-                        String todayDate = dtf.format(now);
-                        String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
-                        task.execute(url);
+                        firstTimeUser = true;
                         openActivityMainActivity();
                     }
                 });
