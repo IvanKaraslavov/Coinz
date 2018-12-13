@@ -765,6 +765,10 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(this,NotificationsActivity.class);
             startActivity(intent);
         } else if (id == R.id.log_out) {
+            SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
+            // We need an Editor object to make preference changes.
+            @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = settings.edit();
+            editor.putString("lastDownloadDate", downloadDate);
             FileInputStream walletFile = null;
             FileInputStream mapFile = null;
             try {
