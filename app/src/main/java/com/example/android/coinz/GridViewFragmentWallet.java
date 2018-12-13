@@ -288,6 +288,13 @@ public class GridViewFragmentWallet extends Fragment {
                         DocumentSnapshot document = task.getResult();
                         if (Objects.requireNonNull(document).exists()) {
                             Log.d("GridView", "DocumentSnapshot data: " + document.getData());
+                            String str = Objects.requireNonNull(document.get("coinsLeft")).toString();
+                            double coinsLeftDouble = Double.parseDouble(str);
+                            int coinsLeft = (int) Math.floor(coinsLeftDouble);
+                            if (coinsLeft > 0) {
+                                Toast.makeText(getActivity(), "First you have to transfer your daily coins to the bank!",
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
                             Dialog dialog = new Dialog(Objects.requireNonNull(getActivity()));
                             dialog.setContentView(R.layout.activity_send_coins);
                             Objects.requireNonNull(dialog.getWindow()).setLayout(1100, 500);
@@ -310,10 +317,10 @@ public class GridViewFragmentWallet extends Fragment {
                                     if (queryDocuments.isEmpty()) {
                                         Toast.makeText(getActivity(), "There is no user with this username!",
                                                 Toast.LENGTH_SHORT).show();
-                                    } else if(friendUsername.equals(Objects.requireNonNull(document.get("username")).toString())) {
+                                    } else if (friendUsername.equals(Objects.requireNonNull(document.get("username")).toString())) {
                                         Toast.makeText(getActivity(), "You cannot send coins to yourself!",
                                                 Toast.LENGTH_SHORT).show();
-                                    }else {
+                                    } else {
                                         Toast.makeText(getActivity(), "Coins sent to " + friendUsername + "!",
                                                 Toast.LENGTH_SHORT).show();
 
@@ -398,7 +405,7 @@ public class GridViewFragmentWallet extends Fragment {
                                                                             .update("newNotifications", true);
                                                                     @SuppressLint("DefaultLocale") String coinsValue = String.format("%.2f", finalValue * finalCurrencyRate);
                                                                     String notificationCurrUser = "You sent " + friendUsername + " " + coinsValue + " gold coins as a gift!";
-                                                                    String notificationReceiver =  document_coins.get("username") + " sent you " + coinsValue + " gold coins as a gift!";
+                                                                    String notificationReceiver = document_coins.get("username") + " sent you " + coinsValue + " gold coins as a gift!";
                                                                     notificationsCurrUserList.add(notificationCurrUser);
                                                                     notificationsReceiverList.add(notificationReceiver);
                                                                     mDatabase.collection("users").document(document_coins.getId())
@@ -450,7 +457,7 @@ public class GridViewFragmentWallet extends Fragment {
                                 });
 
                             });
-
+                        }
                         } else {
                             Log.d("GridView", "No such document");
                         }

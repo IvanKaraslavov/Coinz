@@ -23,6 +23,7 @@ import java.util.Objects;
 
 public class QuestionsActivity extends Activity {
     private String tag = "QuestionsActivity";
+    public static boolean testing = false;
 
     @SuppressLint({"LogNotTimber", "DefaultLocale"})
     @Override
@@ -48,7 +49,12 @@ public class QuestionsActivity extends Activity {
         getWindow().setAttributes(params);
 
         List<Question> questions = Question.getQuestions();
-        int number = (int) (Math.random() * ( questions.size()));
+        int number;
+        if(testing) {
+            number = 9;
+        } else {
+            number = (int) (Math.random() * ( questions.size()));
+        }
         Question question = questions.get(number);
         TextView title = findViewById(R.id.question_title);
         title.setText(question.getTitle());

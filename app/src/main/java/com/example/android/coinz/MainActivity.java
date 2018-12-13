@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
     private static boolean fileDownloaded;
 
+    static boolean testing = false;
+
     private MapView mapView;
     static MapboxMap map;
 
@@ -353,7 +355,16 @@ public class MainActivity extends AppCompatActivity implements
         locationEngine.setFastestInterval(1000); // at most every second
         locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
         locationEngine.activate();
-        Location lastLocation = locationEngine.getLastLocation();
+        Location lastLocation;
+        if(testing) {
+            Location location = new Location("");
+            location.setLatitude(55.9427);
+            location.setLongitude(-3.18751);
+            lastLocation = location;
+            onLocationChanged(location);
+        } else {
+            lastLocation = locationEngine.getLastLocation();
+        }
         if (lastLocation != null) {
             setCameraPosition(lastLocation);
         } else {
